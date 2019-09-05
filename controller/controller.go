@@ -11,7 +11,7 @@ import(
 	"log"
 )
 
-
+//Handlers ...
 func Handlers()http.Handler{
 	server := mux.NewRouter()//create a new Server and attach handlers to it
 	
@@ -24,7 +24,7 @@ func Handlers()http.Handler{
 	return server
 }
 
-
+//UpdateStud ...
 func UpdateStud(w http.ResponseWriter, r * http.Request){
 
 	//check for method PUT, if anything else, respond with appropriate status
@@ -81,7 +81,7 @@ func UpdateStud(w http.ResponseWriter, r * http.Request){
 
 
 }
-
+//GetByName ...
 func GetByName(w http.ResponseWriter,r *http.Request){
 
 	//check for method GET, if anything else, respond with appropriate status
@@ -115,6 +115,7 @@ func GetByName(w http.ResponseWriter,r *http.Request){
 	w.Write(mresult)
 }
 
+//AddStudent ...
 func AddStudent(w http.ResponseWriter,r *http.Request){
 	
 	//check if method is POST else show error
@@ -142,6 +143,8 @@ func AddStudent(w http.ResponseWriter,r *http.Request){
 	}
 }
 
+
+//DeleteStudent ...
 func DeleteStudent(w http.ResponseWriter,r * http.Request){
 	//check if method is DELETE else respond with error
 	if r.Method != "DELETE"{
@@ -177,7 +180,7 @@ func DeleteStudent(w http.ResponseWriter,r * http.Request){
 	}
 }
 
-
+//GetAllStudents ...
 func GetAllStudents(w http.ResponseWriter, r * http.Request){
 	
 	//check for method GET, if any other, respond with error with appropriate status 
