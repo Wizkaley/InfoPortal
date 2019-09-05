@@ -223,12 +223,6 @@ func TestGetAllStudents( t *testing.T ) {
 		t.Errorf("Error Bad Status! got : %v \t want : %v",status,http.StatusOK)
 	}
 
-
-	// expected := `[{"studentName":"Harry","studentAge":22,"studentMarks":70},{"studentName":"Eshan","studentAge":18,"studentMarks":99},{"studentName":"Gaurav","studentAge":25,"studentMarks":90}]`
-
-	// if rr.Body.String() != expected{
-	// 	t.Errorf("Error bad result got : %v \t expected : %v",rr.Body.String(),expected )
-	// }
 }
 
 
@@ -250,52 +244,6 @@ func TestGetAllStudentsErr( t *testing.T ) {
 }
 
 
-
-//TestConnect(t *testing.T)
-
-// func TestGetByName(t *testing.T){
-
-// 	dao.Init()
-// 	//srv := httptest.NewServer(Handlers())
-// 	//defer srv.Close()
-// 	//str := []byte(`{"nm":"Eshan"}`)
-// 	req := httptest.NewRequest("GET","/getStud/Eshan",nil)
-
-// 	//q := req.URL.Query()
-// 	//fmt.Println("Parsing Noww.........",req.URL.Parse())
-// 	///q := req.FormValue("nm")
-// 	//fmt.Println("................................value of q",q)
-// 	//uri := req.RequestURI
-// 	//fmt.Println("Requested URI..........................",uri)
-// 	//fmt.Println(req.URL.Path)
-
-// 	//q.Add("nm","Eshan")
-// 	//q.Set("nm","Eshan")
-// 	//q.Add("/nm","Eshan")
-// 	//req.URL.RawQuery = q.Encode()
-// 	//req.URL.
-// 	rr := httptest.NewRecorder()
-// 	handler := http.HandlerFunc(GetByName)
-// 	fmt.Println("............................1")
-// 	//fmt.Println(srv.URL)
-// 	//fmt.Print(req.URL.RawPath)
-	
-// 	handler.ServeHTTP(rr,req)
-// 	fmt.Print("............................2")
-
-// 	status := rr.Code; if status!= http.StatusOK{
-// 		t.Errorf("Wrong Request! got : %v \t want : %v",status,http.StatusOK)
-// 	}
-// 	fmt.Print("............................3")
-// 	expected := `{"studentName":"Eshan","studentAge":18,"studentMarks":99}`
-// 	if rr.Body.String() != expected{
-// 		t.Errorf("Didn't receive exected Results! got : %v, expected : %v",rr.Body.String(),expected)
-// 	}
-
-
-
-
-// }
 
 func TestGetByName(t *testing.T){
 	tst := []struct{
@@ -378,68 +326,6 @@ func TestGetByNameErr(t *testing.T){
 	
 	}
 }
-// func TestGetByName(t * testing.T){
-
-// 	tstSuite := [] struct{
-// 		method string
-// 		uri string
-// 		status int
-// 	}{
-// 		{
-// 			method: "GET",
-// 			uri:"/getStud/Eshan",
-// 			status: 200,
-// 		},
-// 		{
-// 			method:"GET",
-// 			uri:"/getStud/Harry",	
-// 			status:200,
-// 		},
-// 	}
-// 		for i:= range tstSuite{
-// 		dao.Init()
-// 		srv := httptest.NewServer(Handlers())
-
-// 		defer srv.Close()
-
-// 		req, err := http.NewRequest(tstSuite[i].method,srv.URL+tstSuite[i].uri,nil)
-// 		fmt.Println(srv.URL+tstSuite[i].uri)
-// 		if err != nil{
-// 			t.Errorf("New Req could not be complete: %v",err)
-// 		}
-
-// 		res,_:=http.DefaultClient.Do(req)
-// 		if res.StatusCode != tstSuite[i].status{
-// 			t.Errorf("Expected status ok, got different status got: %v \t want: %v",res.StatusCode,tstSuite[i].status)
-// 		}
-
-// 		fmt.Println(res.Body)
-// 	}
-// }
-
-
-// func TestAddStudent(t *testing.T){
-
-
-// 	pt := []byte(`{"studentName":"Rushikesh Kinhalkar","studentAge":01,"studentMarks":80}`)
-
-// 	req := httptest.NewRequest("POST","/stud",bytes.NewBuffer(pt))
-
-// 	rr := httptest.NewRecorder()
-
-// 	//q := req.URL.Query()
-
-// 	//q.Add("name":"")
-
-// 	req.Header.Set("Content-type","application/json")
-// 	handler := http.HandlerFunc(AddStudent)
-// 	handler.ServeHTTP(rr,req)
-
-// 	if rr.Code != 200{
-// 		t.Errorf("Bad Request, Student Not Added")
-// 	}
-
-
 
 func TestAddStudent(t *testing.T){
 	ts := []struct{

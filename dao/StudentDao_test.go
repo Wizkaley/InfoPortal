@@ -5,8 +5,6 @@ import(
 	"RestApp/model"
 	"fmt"
 	"github.ibm.com/dash/dash_utils/dashtest"
-	//"github.ibm.com/dash/dash_utils/dashtest/testing"
-	//"RestApp/testing"
 )
 
 
@@ -23,7 +21,6 @@ func TestAddStudent(t *testing.T){
 	}
 
 	err := AddStudent(tst); if err!=nil{
-		//t.Errorf("Error Not Expected but :%v",err)
 		fmt.Printf("Error Was Expected : %v",err)
 	}
 
