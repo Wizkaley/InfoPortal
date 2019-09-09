@@ -14,15 +14,19 @@ import(
 //Handlers ...
 func Handlers()http.Handler{
 	server := mux.NewRouter()//create a new Server and attach handlers to it
-	
-	server.HandleFunc("/stud",AddStudent).Methods("POST")
-	server.HandleFunc("/remStud/{name}",DeleteStudent).Methods("DELETE")
-	server.HandleFunc("/getAll",GetAllStudents).Methods("GET")
-	server.HandleFunc("/getStud/{nm}",GetByName).Methods("GET")
-	server.HandleFunc("/upStud/{nm1}",UpdateStud).Methods("PUT")
+	//meths := []string{"POST","OPTIONS",}
+	server.HandleFunc("/stud",AddStudent).Methods("POST")// done
+	//server.HandleFunc("/stud",PreflightAddStudent).Methods("OPTIONS")
+	server.HandleFunc("/remStud/{name}",DeleteStudent).Methods("DELETE")//done
+	server.HandleFunc("/getAll",GetAllStudents).Methods("GET")//done
+	server.HandleFunc("/getStud/{nm}",GetByName).Methods("GET")//done
+	server.HandleFunc("/upStud/{nm1}",UpdateStud).Methods("PUT")//done
 
 	return server
 }
+
+
+
 
 //UpdateStud ...
 func UpdateStud(w http.ResponseWriter, r * http.Request){
@@ -51,6 +55,12 @@ func UpdateStud(w http.ResponseWriter, r * http.Request){
 		//get a studentObject from GetByName using the extracted name
 		stuToChange,err:= dao.GetByName(nm); if err!=nil{
 			log.Printf("Error While Fetching Record to Update : %v", err)
+			res,_ := json.Marshal("Invalid Student Name specified")
+			w.Header().Set("Content-type","application/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write(res) //send Message
+			return
+
 		}
 
 		//Decode values from body sent from client into a studentObject 
@@ -102,14 +112,17 @@ func GetByName(w http.ResponseWriter,r *http.Request){
 	
 	var s model.Student
 	s,err := dao.GetByName(params["nm"])//call data access layer
-
+	
 	if err!=nil{
-		log.Fatal(err)
+		res,_ := json.Marshal("No Entry Found By That Name")
+		w.Header().Set("Content Type","application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write(res)
+		return
 	}
 
 	//respond with appropriate message
 	mresult,_ := json.Marshal(s)
-	
 	w.Header().Set("Content-type","application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(mresult)
@@ -119,30 +132,30 @@ func GetByName(w http.ResponseWriter,r *http.Request){
 func AddStudent(w http.ResponseWriter,r *http.Request){
 	
 	//check if method is POST else show error
-	if r.Method != "POST"{
-		
-		response,_:= json.Marshal("Bad Request")
-		w.Header().Set("Content-Type","application/json")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write(response)
-	}
-	//check if body has content
-	if r.Body != nil{
-		defer r.Body.Close()
-		var stu model.Student
-
-		//decode the body for student details
-		err := json.NewDecoder(r.Body).Decode(&stu)
-		if err == nil{
-			dao.AddStudent(stu)
-			response,_ := json.Marshal("Added Successfully")
-			w.Header().Set("Content-Type","application/json")
-			w.WriteHeader(http.StatusOK)
+		if r.Method != "POST"{
+			
+			response,_:= json.Marshal("Bad Request")
+			w.Header().Set("Content-type","application/json")
+			w.WriteHeader(http.StatusMethodNotAllowed)
 			w.Write(response)
 		}
-	}
-}
+		//check if body has content
+		if r.Body != nil{
+			defer r.Body.Close()
+			var stu model.Student
 
+			//decode the body for student details
+			err := json.NewDecoder(r.Body).Decode(&stu)
+			if err == nil{
+				dao.AddStudent(stu)
+				//w.Header().Set("Access-Control-Allow-Methods","POST,OPTIONS")
+				response,_ := json.Marshal("Added Successfully")
+				w.Header().Set("Content-Type","application/json")
+				w.WriteHeader(http.StatusOK)
+				w.Write(response)
+			}
+		}
+}
 
 //DeleteStudent ...
 func DeleteStudent(w http.ResponseWriter,r * http.Request){
@@ -157,6 +170,7 @@ func DeleteStudent(w http.ResponseWriter,r * http.Request){
 		w.Write(response)
 		
 	}
+	
 
 	//check if body has content
 	if r.Body != nil{
@@ -165,9 +179,16 @@ func DeleteStudent(w http.ResponseWriter,r * http.Request){
 		defer r.Body.Close()
 		params := mux.Vars(r)//extract name of student from URL path
 		
-
+		//err := dao.GetByName(params["name"])
 		//Respond to the requeset after calling Data Access Layer
-		dao.RemoveByName(params["name"])
+		err := dao.RemoveByName(params["name"])
+		if err!=nil{
+			res,_ := json.Marshal("Could not Find anyone with that name")
+			w.Header().Set("Content-Type","appication/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write(res)
+			return
+		}
 		response,err := json.Marshal("Removed Student")
 		if err!= nil{
 			log.Fatal(err)
@@ -192,6 +213,9 @@ func GetAllStudents(w http.ResponseWriter, r * http.Request){
 		}
 
 		w.Header().Set("Content-Type","application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		//w.Header().S
+		//w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write(response)
 	}
