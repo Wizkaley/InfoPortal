@@ -1,0 +1,314 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "The purpose of this application is to store and retrieve test records for published test results",
+    "title": "Test Project API's",
+    "contact": {
+      "name": "Eshan Kaley",
+      "email": "eshkaley@in.ibm.com"
+    },
+    "license": {
+      "name": "bleh"
+    },
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/deletePlane/{id}": {
+      "delete": {
+        "description": "Removes a Plane from DB",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "DELETE"
+        ],
+        "summary": "Remove Plane",
+        "operationId": "removePlane",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "id of the plane to remove",
+            "name": "id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plane Removed Successfully"
+          },
+          "401": {
+            "description": "Unauthorized, Likely Invalid or Missing Token"
+          },
+          "403": {
+            "description": "Forbidden, you are not allowed to undertake this operation"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Error occurred while processing the request"
+          }
+        }
+      }
+    },
+    "/deletePlane/{name}": {
+      "delete": {
+        "description": "Delete a Plane from Plane Catalog",
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "DELETE"
+        ],
+        "summary": "Delete Plane",
+        "operationId": "removePlane",
+        "parameters": [
+          {
+            "description": "The name of the Plane to be removed",
+            "name": "name",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plane Removed Successfully"
+          },
+          "401": {
+            "description": "Unauthorized, Likely Invalid or Missing Token"
+          },
+          "403": {
+            "description": "Forbidden, you are not allowed to undertake this operation"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Error occurred while processing the request"
+          }
+        }
+      }
+    },
+    "/getStud/{name}": {
+      "get": {
+        "description": "Get Student Details by name",
+        "tags": [
+          "GET"
+        ],
+        "summary": "Get Student By Name",
+        "operationId": "getStudent",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details Fetched Status Ok",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/Student",
+              "example": {
+                "studentAge": 25,
+                "studentMarks": 70,
+                "studentName": "Eshan"
+              }
+            }
+          },
+          "400": {
+            "description": "No Entry Found By that Name"
+          }
+        }
+      }
+    },
+    "/planes": {
+      "get": {
+        "description": "Get Catalog of planes",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "GET"
+        ],
+        "summary": "Get Planes",
+        "operationId": "getPlanes",
+        "responses": {
+          "200": {
+            "description": "Found Results",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GetPlanesAPIResponse"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized, Likely Invalid or Missing Token"
+          },
+          "403": {
+            "description": "Forbidden, you are not allowed to undertake this operation"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Error occurred while processing the request"
+          }
+        }
+      }
+    },
+    "/upStud/{nm1}": {
+      "put": {
+        "description": "Update Student Details",
+        "tags": [
+          "UPDATE"
+        ],
+        "summary": "Update Student Details in the Catalog",
+        "operationId": "updateStudent",
+        "parameters": [
+          {
+            "description": "Student Name to Update Details",
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student Updated Successfully"
+          },
+          "400": {
+            "description": "Invalid Student Name Specified"
+          },
+          "404": {
+            "description": "Student Not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "GetPlanesAPIResponse": {
+      "type": "object",
+      "title": "GetPlanesAPIResponse ...",
+      "properties": {
+        "Planes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Plane"
+          },
+          "x-go-name": "Plane"
+        }
+      },
+      "x-go-package": "RESTApp/model"
+    },
+    "Plane": {
+      "type": "object",
+      "title": "Plane ...",
+      "required": [
+        "id",
+        "name",
+        "wheels",
+        "engines",
+        "type"
+      ],
+      "properties": {
+        "engines": {
+          "description": "no. of engines of the plane",
+          "type": "string",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "Engines"
+        },
+        "id": {
+          "description": "Id for the plane",
+          "type": "string",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "Pid"
+        },
+        "name": {
+          "description": "Name for the Plane",
+          "type": "string",
+          "minimum": 3,
+          "x-go-name": "Name"
+        },
+        "type": {
+          "description": "Type of plane",
+          "type": "string",
+          "minimum": 3,
+          "x-go-name": "PType"
+        },
+        "wheels": {
+          "description": "no. of wheels of the plane",
+          "type": "string",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "NoWheels"
+        }
+      },
+      "x-go-package": "RESTApp/model"
+    },
+    "Student": {
+      "description": "Student represents students info as a record in this application",
+      "type": "object",
+      "required": [
+        "studentName",
+        "studentAge",
+        "studentMarks"
+      ],
+      "properties": {
+        "studentAge": {
+          "description": "Age for the Student",
+          "type": "string",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "StudentAge"
+        },
+        "studentMarks": {
+          "description": "Marks for the Student",
+          "type": "string",
+          "format": "int64",
+          "minimum": 1,
+          "x-go-name": "StudentMarks"
+        },
+        "studentName": {
+          "description": "Name for the Student",
+          "type": "string",
+          "minLength": 3,
+          "x-go-name": "StudentName"
+        }
+      },
+      "x-go-package": "RESTApp/model"
+    }
+  },
+  "securityDefinitions": {
+    "token": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "token": []
+    }
+  ]
+}

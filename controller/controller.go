@@ -30,6 +30,7 @@
 package controller
 
 import (
+	"strconv"
 
 	//"fmt"
 	"RESTApp/dao"
@@ -47,24 +48,16 @@ import (
 //Handlers ...
 func Handlers(ds *mgo.Session) http.Handler {
 	server := mux.NewRouter() //create a new Server and attach handlers to it
-	//meths := []string{"POST","OPTIONS",}
-
-	//Base
-	//fs := http.FileServer(http.Dir("/home/wiz/go/src/RESTApp/public"))
-
-	//server.Handle("/public/", http.StripPrefix("/public", fs))
 
 	server.PathPrefix("/public/").Handler(
 		http.StripPrefix("/public/", http.FileServer(http.Dir("/home/wiz/go/src/RESTApp/public/"))))
 
-	//swagger := http.FileServer(http.Dir("static/dist/files"))
-	// server.Handle("/dist/files", swagger)
-	//server.HandleFunc("/", GetDist).Methods("GET")
 	server.HandleFunc("/", redir).Methods("GET")
 	server.HandleFunc("/swagger", GetSwagger).Methods("GET")
 	server.HandleFunc("/plane", AddPlane(ds)).Methods("POST")
 	server.HandleFunc("/planes", GetPlanesHandler(ds)).Methods("GET")
-	//server.HandleFunc("/stud",PreflightAddStudent).Methods("OPTIONS")
+	server.HandleFunc("/deletePane/{name}", RemovePlaneByName(ds)).Methods("DELETE")
+	server.HandleFunc("/deletePlane/{id}", RemovePlaneByID(ds)).Methods("DELETE")
 
 	//Student Handlers
 	server.HandleFunc("/remStud/{name}", DeleteStudent(ds)).Methods("DELETE") //done
@@ -75,13 +68,6 @@ func Handlers(ds *mgo.Session) http.Handler {
 
 	return server
 }
-
-// // GetDist ...
-// func GetDist(w http.ResponseWriter, r *http.Request) {
-// 	s := mux.NewRouter()
-
-// 	http.ServeFile(w, r, )
-// }
 
 // GetSwagger ...
 func GetSwagger(w http.ResponseWriter, r *http.Request) {
@@ -94,6 +80,29 @@ func redir(w http.ResponseWriter, r *http.Request) {
 
 //GetPlanesHandler ...
 func GetPlanesHandler(ds *mgo.Session) http.HandlerFunc {
+	// swagger:operation GET /planes GET getPlanes
+	//
+	// Get Planes
+	//
+	// Get Catalog of planes
+	// ---
+	// produces:
+	// - application/json
+	// responses:
+	//  '200':
+	//    description: Found Results
+	//    schema:
+	//     type: array
+	//     items:
+	//      "$ref": "#/definitions/GetPlanesAPIResponse"
+	//  '401':
+	//    description: Unauthorized, Likely Invalid or Missing Token
+	//  '403':
+	//    description: Forbidden, you are not allowed to undertake this operation
+	//  '404':
+	//    description: Not found
+	//  '500':
+	//    description: Error occurred while processing the request
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			res, err := json.Marshal("Bad Request")
@@ -159,7 +168,33 @@ func AddPlane(ds *mgo.Session) http.HandlerFunc {
 }
 
 // RemovePlaneByName ...
-func RemovePlaneByName(name string, ds *mgo.Session) http.HandlerFunc {
+func RemovePlaneByName(ds *mgo.Session) http.HandlerFunc {
+	// swagger:operation DELETE /deletePlane/{name} DELETE removePlane
+	//
+	// Delete Plane
+	//
+	// Delete a Plane from Plane Catalog
+	// ---
+	// produces:
+	// - application/json
+	// - application/xml
+	// parameters:
+	// - name: name
+	//   in: query
+	//   required: true
+	//   description: The name of the Plane to be removed
+	// responses:
+	//  '200':
+	//    description: Plane Removed Successfully
+	//  '401':
+	//    description: Unauthorized, Likely Invalid or Missing Token
+	//  '403':
+	//    description: Forbidden, you are not allowed to undertake this operation
+	//  '404':
+	//    description: Not found
+	//  '500':
+	//    description: Error occurred while processing the request
+	//
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" {
 			res, err := json.Marshal("Bad Request")
@@ -168,22 +203,9 @@ func RemovePlaneByName(name string, ds *mgo.Session) http.HandlerFunc {
 			}
 			sendErr(w, http.StatusMethodNotAllowed, res)
 		}
-
-		// countCheckSession := ds.Clone()
-		// count, err := countCheckSession.DB("trial").C("Student").Count()
-		// if err != nil {
-		// 	log.Println("Error while getting count from DB : %v", err)
-		// }
-
-		// if id > count {
-		// 	res, err := json.Marshal("ID with the given value Doesn't Exist")
-		// 	if err != nil {
-		// 		log.Printf("Error while encoding error message : %v", err)
-		// 	}
-		// 	sendErr(w, http.StatusBadRequest, res)
-		// }
-
-		ok := dao.DeletePlane(name, ds)
+		params := mux.Vars(r)
+		del := params["name"]
+		ok := dao.DeletePlane(del, ds)
 		if !ok {
 			res, err := json.Marshal("Could Not Delete Server Error")
 			if err != nil {
@@ -199,8 +221,8 @@ func RemovePlaneByName(name string, ds *mgo.Session) http.HandlerFunc {
 }
 
 // RemovePlaneByID ...
-func RemovePlaneByID(id int, ds *mgo.Session) http.HandlerFunc {
-	// swagger:operation DELETE /removePlane DELETE removePlane
+func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
+	// swagger:operation DELETE /deletePlane/{id} DELETE removePlane
 	//
 	// Remove Plane
 	//
@@ -216,7 +238,7 @@ func RemovePlaneByID(id int, ds *mgo.Session) http.HandlerFunc {
 	//   in: query
 	// responses:
 	//   '200':
-	//     description: Removed Successfully
+	//     description: Plane Removed Successfully
 	//   '401':
 	//     description: Unauthorized, Likely Invalid or Missing Token
 	//   '403':
@@ -240,6 +262,13 @@ func RemovePlaneByID(id int, ds *mgo.Session) http.HandlerFunc {
 			log.Println("Error while getting count from DB : %v", err)
 		}
 
+		params := mux.Vars(r)
+		idIns := params["id"]
+		id, err := strconv.Atoi(idIns)
+		if err != nil {
+			res, _ := json.Marshal("Server Error")
+			sendErr(w, http.StatusInternalServerError, res)
+		}
 		if id > count {
 			res, err := json.Marshal("ID with the given value Doesn't Exist")
 			if err != nil {
@@ -284,18 +313,16 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 	//  content:
 	//   application/json:
 	//    schema:
-	//     $ref: '#/definitions/schemas/Student'
+	//     $ref: '#/definitions/Student'
 	//
 	// responses:
 	//  200:
 	//   description: "Student Updated Successfully"
 	//   content:
 	//    schema:
-	//     $ref: '#/definitions/schemas/Student'
+	//     $ref: '#/definitions/Student'
 	//  400:
 	//   description: "Invalid Student Name Specified"
-	//   content:
-	//    {}
 	//  404:
 	//   description: "Student Not Found"
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -365,6 +392,29 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 
 //GetByName ...
 func GetByName(ds *mgo.Session) http.HandlerFunc {
+	// swagger:operation GET /getStud/{name} GET getStudent
+	//
+	// ---
+	// description: Get Student Details by name
+	// summary: "Get Student By Name"
+	// parameters:
+	// - in: path
+	//   name: name
+	//   required: true
+	//   schema:
+	//    type: string
+	// responses:
+	//  200:
+	//   description: Details Fetched Status Ok
+	//   schema:
+	//    type: object
+	//    $ref: '#/definitions/Student'
+	//    example:
+	//     studentName: Eshan
+	//     studentAge: 25
+	//     studentMarks: 70
+	//  400:
+	//     description: "No Entry Found By that Name"
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//check for method GET, if anything else, respond with appropriate status

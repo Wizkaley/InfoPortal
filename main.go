@@ -22,6 +22,7 @@ import (
 
 func main() {
 	session, err := dao.Init("localhost:27017")
+	defer session.Close()
 	if err != nil {
 		log.Printf("Master DB Con Error : %v ", err)
 	}

@@ -1,0 +1,26 @@
+paths:
+  /removePlane:
+    delete:
+      description: Removes a Plane from DB
+      operationId: removePlane
+      parameters:
+      - description: id of the plane to remove
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Removed Successfully
+        "401":
+          description: Unauthorized, Likely Invalid or Missing Token
+        "403":
+          description: Forbidden, you are not allowed to undertake this operation
+        "404":
+          description: Not found
+        "500":
+          description: Error occurred while processing the request
+      summary: Remove Plane
+swagger: "2.0"
