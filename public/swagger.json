@@ -20,7 +20,52 @@
   },
   "basePath": "/",
   "paths": {
-    "/deletePlane/{id}": {
+    "/plane": {
+      "post": {
+        "description": "\nAdd a New Plane",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "POST"
+        ],
+        "summary": "Put Plane in the Plane catalog",
+        "operationId": "putPlane",
+        "parameters": [
+          {
+            "type": "object",
+            "description": "Student to be Added in the Catalog",
+            "name": "Plane",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Plane"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Added Plane To the Catalog Successfully",
+            "schema": {
+              "$ref": "#/definitions/Plane"
+            }
+          },
+          "401": {
+            "description": "Unauthorized, Likely Invalid or Missing Token"
+          },
+          "403": {
+            "description": "Forbidden, you are not allowed to undertake this operation"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Error occurred while processing the request"
+          }
+        }
+      }
+    },
+    "/plane/{id}": {
       "delete": {
         "description": "Removes a Plane from DB",
         "produces": [
@@ -59,7 +104,7 @@
         }
       }
     },
-    "/deletePlane/{name}": {
+    "/plane/{name}": {
       "delete": {
         "description": "Delete a Plane from Plane Catalog",
         "produces": [
@@ -94,43 +139,6 @@
           },
           "500": {
             "description": "Error occurred while processing the request"
-          }
-        }
-      }
-    },
-    "/getStud/{name}": {
-      "get": {
-        "description": "Get Student Details by name",
-        "tags": [
-          "GET"
-        ],
-        "summary": "Get Student By Name",
-        "operationId": "getStudent",
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Details Fetched Status Ok",
-            "schema": {
-              "type": "object",
-              "$ref": "#/definitions/Student",
-              "example": {
-                "studentAge": 25,
-                "studentMarks": 70,
-                "studentName": "Eshan"
-              }
-            }
-          },
-          "400": {
-            "description": "No Entry Found By that Name"
           }
         }
       }
@@ -171,7 +179,82 @@
         }
       }
     },
-    "/upStud/{nm1}": {
+    "/student": {
+      "post": {
+        "description": "Add a Student to the Student",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "POST"
+        ],
+        "summary": "Add Student",
+        "operationId": "AddStudent",
+        "parameters": [
+          {
+            "name": "Student",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Student"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Added Student Successfully to the Catalog"
+          },
+          "401": {
+            "description": "Unauthorized, Likely Invalid or Missing Token"
+          },
+          "403": {
+            "description": "Forbidden, you are not allowed to undertake this operation"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Error occurred while processing the request"
+          }
+        }
+      }
+    },
+    "/student/{name}": {
+      "get": {
+        "description": "Get Student Details by name",
+        "tags": [
+          "GET"
+        ],
+        "summary": "Get Student By Name",
+        "operationId": "getStudent",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details Fetched Status Ok",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/Student",
+              "example": {
+                "studentAge": 25,
+                "studentMarks": 70,
+                "studentName": "Eshan"
+              }
+            }
+          },
+          "400": {
+            "description": "No Entry Found By that Name"
+          }
+        }
+      },
       "put": {
         "description": "Update Student Details",
         "tags": [
@@ -181,12 +264,18 @@
         "operationId": "updateStudent",
         "parameters": [
           {
+            "type": "string",
             "description": "Student Name to Update Details",
             "name": "name",
             "in": "path",
+            "required": true
+          },
+          {
+            "name": "Student",
+            "in": "body",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/Student"
             }
           }
         ],
@@ -201,10 +290,85 @@
             "description": "Student Not Found"
           }
         }
+      },
+      "delete": {
+        "description": "Delete A Student From Student Catalog",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "DELETE"
+        ],
+        "summary": "Delete Stident",
+        "operationId": "deleteStudent",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Name of the Student to Delete",
+            "name": "name",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Removed Student from the Catalog"
+          },
+          "400": {
+            "description": "Invalid Student Name Specified"
+          },
+          "404": {
+            "description": "Student Not Found"
+          }
+        }
+      }
+    },
+    "/students": {
+      "get": {
+        "description": "Get the Student Catalog in Response",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "GET"
+        ],
+        "summary": "List of Students",
+        "operationId": "getAllStudents",
+        "responses": {
+          "200": {
+            "description": "Found Results",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GetAllStudentsAPIResponse"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Student Name Specified"
+          },
+          "404": {
+            "description": "Student Not Found"
+          }
+        }
       }
     }
   },
   "definitions": {
+    "GetAllStudentsAPIResponse": {
+      "description": "GetAllStudentsAPIResponse holds list of Students",
+      "type": "object",
+      "properties": {
+        "Students": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Student"
+          },
+          "x-go-name": "Student"
+        }
+      },
+      "x-go-package": "RESTApp/model"
+    },
     "GetPlanesAPIResponse": {
       "type": "object",
       "title": "GetPlanesAPIResponse ...",

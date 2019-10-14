@@ -16,3 +16,9 @@ type Student struct {
 	// min: 1
 	StudentMarks int `json:"studentMarks,string" bson:"studentMarks"`
 }
+
+// GetAllStudentsAPIResponse holds list of Students
+// swagger:model GetAllStudentsAPIResponse
+type GetAllStudentsAPIResponse struct {
+	Student []Student `json:"Students"`
+}

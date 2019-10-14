@@ -9,10 +9,28 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//Init ...
-// func Init() {
-// 	connect()
-// }
+type testIndices struct {
+	Name     string
+	Index    mgo.Index
+	Keys     []string
+	Unique   bool
+	DropDups bool
+}
+
+var (
+	workIndices = []testIndices{
+		{
+			Name: "Marks",
+			Index: mgo.Index{
+				Key:        []string{"studentMarks"},
+				Unique:     false,
+				Background: true,
+				DropDups:   false,
+				Sparse:     false,
+			},
+		},
+	}
+)
 
 // AddStudent ...
 func AddStudent(stud model.Student, ds *mgo.Session) error {
@@ -59,8 +77,19 @@ func GetAll(ds *mgo.Session) (students []model.Student, err error) {
 //UpdateStudent ...
 func UpdateStudent(student model.Student, ds *mgo.Session) (err error) {
 	db := ds.Clone()
+	defer db.Close()
 	err = db.DB("trial").C("Student").Update(
 		bson.M{"studentName": student.StudentName},
 		student)
+	return
+}
+
+// StudentAggregates returns Aggregates based on Marks
+func StudentAggregates(marks int32, ds *mgo.Session) (err error) {
+	db := ds.Clone()
+	defer db.Close()
+	//c := db.DB("trial").C("Student")
+	//c.EnsureIndex(workIndices[0].Index)
+	//pipe := c.Pipe(bson.M{"$count":marks})
 	return
 }

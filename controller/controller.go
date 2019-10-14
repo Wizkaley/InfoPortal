@@ -30,6 +30,7 @@
 package controller
 
 import (
+	"fmt"
 	"strconv"
 
 	//"fmt"
@@ -56,22 +57,23 @@ func Handlers(ds *mgo.Session) http.Handler {
 	server.HandleFunc("/swagger", GetSwagger).Methods("GET")
 	server.HandleFunc("/plane", AddPlane(ds)).Methods("POST")
 	server.HandleFunc("/planes", GetPlanesHandler(ds)).Methods("GET")
-	server.HandleFunc("/deletePane/{name}", RemovePlaneByName(ds)).Methods("DELETE")
-	server.HandleFunc("/deletePlane/{id}", RemovePlaneByID(ds)).Methods("DELETE")
+	server.HandleFunc("/plane/{name}", RemovePlaneByName(ds)).Methods("DELETE")
+	server.HandleFunc("/plane/{id}", RemovePlaneByID(ds)).Methods("DELETE")
+	server.HandleFunc("/studentAggregates", StudentAggregates(ds)).Methods("GET")
 
 	//Student Handlers
-	server.HandleFunc("/remStud/{name}", DeleteStudent(ds)).Methods("DELETE") //done
-	server.HandleFunc("/getAll", GetAllStudents(ds)).Methods("GET")           //done
-	server.HandleFunc("/getStud/{nm}", GetByName(ds)).Methods("GET")          //done
-	server.HandleFunc("/upStud/{nm1}", UpdateStud(ds)).Methods("PUT")
-	server.HandleFunc("/stud", AddStudent(ds)).Methods("POST") // done        //done
+	server.HandleFunc("/student/{name}", DeleteStudent(ds)).Methods("DELETE") //done
+	server.HandleFunc("/students", GetAllStudents(ds)).Methods("GET")         //done
+	server.HandleFunc("/student/{name}", GetByName(ds)).Methods("GET")        //done
+	server.HandleFunc("/student/{name}", UpdateStud(ds)).Methods("PUT")
+	server.HandleFunc("/student", AddStudent(ds)).Methods("POST") // done        //done
 
 	return server
 }
 
 // GetSwagger ...
 func GetSwagger(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "/home/wiz/go/src/RESTApp/public/swagger.json")
+	http.ServeFile(w, r, "public/swagger.json")
 }
 
 func redir(w http.ResponseWriter, r *http.Request) {
@@ -137,6 +139,38 @@ func sendErr(w http.ResponseWriter, stat int, res []byte) {
 
 // AddPlane ...
 func AddPlane(ds *mgo.Session) http.HandlerFunc {
+	// swagger:operation POST /plane POST putPlane
+	//
+	//
+	// Put Plane in the Plane catalog
+	//
+	//
+	// Add a New Plane
+	// ---
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: Plane
+	//   type: object
+	//   description: Student to be Added in the Catalog
+	//   required: true
+	//   in: body
+	//   schema:
+	//    $ref: '#/definitions/Plane'
+	// responses:
+	//  '200':
+	//    description: Added Plane To the Catalog Successfully
+	//    schema:
+	//     $ref: '#/definitions/Plane'
+	//  '401':
+	//    description: Unauthorized, Likely Invalid or Missing Token
+	//  '403':
+	//    description: Forbidden, you are not allowed to undertake this operation
+	//  '404':
+	//    description: Not found
+	//  '500':
+	//    description: Error occurred while processing the request
+	//
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			res, err := json.Marshal("Bad Request")
@@ -169,7 +203,7 @@ func AddPlane(ds *mgo.Session) http.HandlerFunc {
 
 // RemovePlaneByName ...
 func RemovePlaneByName(ds *mgo.Session) http.HandlerFunc {
-	// swagger:operation DELETE /deletePlane/{name} DELETE removePlane
+	// swagger:operation DELETE /plane/{name} DELETE removePlane
 	//
 	// Delete Plane
 	//
@@ -222,7 +256,7 @@ func RemovePlaneByName(ds *mgo.Session) http.HandlerFunc {
 
 // RemovePlaneByID ...
 func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
-	// swagger:operation DELETE /deletePlane/{id} DELETE removePlane
+	// swagger:operation DELETE /plane/{id} DELETE removePlane
 	//
 	// Remove Plane
 	//
@@ -293,37 +327,31 @@ func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
 	})
 }
 
-//UpdateStud ...
+//UpdateStud Update Student Info ByName
 func UpdateStud(ds *mgo.Session) http.HandlerFunc {
-	// swagger:operation PUT /upStud/{nm1} UPDATE updateStudent
+	// swagger:operation PUT /student/{name} UPDATE updateStudent
 	//
 	// Update a Students Information in The Student Catalog
 	// ---
 	// description: "Update Student Details"
 	// summary: "Update Student Details in the Catalog"
 	// parameters:
-	// - in: path
-	//   name: name
+	// - name: name
+	//   in: path
 	//   description: "Student Name to Update Details"
 	//   required: true
+	//   type: string
+	// - name : Student
+	//   in: body
+	//   required: true
 	//   schema:
-	//    type: string
-	// requestBody:
-	//  description: Updated Student Details
-	//  content:
-	//   application/json:
-	//    schema:
-	//     $ref: '#/definitions/Student'
-	//
+	//    $ref: '#/definitions/Student'
 	// responses:
-	//  200:
+	//  '200':
 	//   description: "Student Updated Successfully"
-	//   content:
-	//    schema:
-	//     $ref: '#/definitions/Student'
-	//  400:
+	//  '400':
 	//   description: "Invalid Student Name Specified"
-	//  404:
+	//  '404':
 	//   description: "Student Not Found"
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -344,8 +372,8 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 
 			//extract name from path
 			params := mux.Vars(r)
-			nm := params["nm1"]
-
+			nm := params["name"]
+			fmt.Println(nm)
 			defer r.Body.Close()
 
 			//get a studentObject from GetByName using the extracted name
@@ -392,7 +420,7 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 
 //GetByName ...
 func GetByName(ds *mgo.Session) http.HandlerFunc {
-	// swagger:operation GET /getStud/{name} GET getStudent
+	// swagger:operation GET /student/{name} GET getStudent
 	//
 	// ---
 	// description: Get Student Details by name
@@ -404,7 +432,7 @@ func GetByName(ds *mgo.Session) http.HandlerFunc {
 	//   schema:
 	//    type: string
 	// responses:
-	//  200:
+	//  '200':
 	//   description: Details Fetched Status Ok
 	//   schema:
 	//    type: object
@@ -413,7 +441,7 @@ func GetByName(ds *mgo.Session) http.HandlerFunc {
 	//     studentName: Eshan
 	//     studentAge: 25
 	//     studentMarks: 70
-	//  400:
+	//  '400':
 	//     description: "No Entry Found By that Name"
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -454,6 +482,31 @@ func GetByName(ds *mgo.Session) http.HandlerFunc {
 
 //AddStudent ...
 func AddStudent(ds *mgo.Session) http.HandlerFunc {
+	// swagger:operation POST /student POST AddStudent
+	//
+	// Add Student
+	//
+	// Add a Student to the Student
+	// ---
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: Student
+	//   required: true
+	//   in: body
+	//   schema:
+	//    "$ref": '#/definitions/Student'
+	// responses:
+	//  '200':
+	//   description: Added Student Successfully to the Catalog
+	//  '401':
+	//   description: Unauthorized, Likely Invalid or Missing Token
+	//  '403':
+	//   description: Forbidden, you are not allowed to undertake this operation
+	//  '404':
+	//   description: Not found
+	//  '500':
+	//   description: Error occurred while processing the request
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//check if method is POST else show error
@@ -485,6 +538,29 @@ func AddStudent(ds *mgo.Session) http.HandlerFunc {
 
 //DeleteStudent ...
 func DeleteStudent(ds *mgo.Session) http.HandlerFunc {
+	// swagger:operation DELETE /student/{name} DELETE deleteStudent
+	//
+	// Delete Stident
+	//
+	// Delete A Student From Student Catalog
+	//
+	// ---
+	// produces:
+	// - application/json
+	// parameters:
+	// - name: name
+	//   type: string
+	//   description: Name of the Student to Delete
+	//   in: query
+	//   required: true
+	// responses:
+	//  200:
+	//   description: Removed Student from the Catalog
+	//  400:
+	//   description: "Invalid Student Name Specified"
+	//  404:
+	//   description: "Student Not Found"
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//check if method is DELETE else respond with error
 		if r.Method != "DELETE" {
@@ -530,6 +606,26 @@ func DeleteStudent(ds *mgo.Session) http.HandlerFunc {
 //GetAllStudents ...
 func GetAllStudents(ds *mgo.Session) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// swagger:operation GET /students GET getAllStudents
+		//
+		// List of Students
+		//
+		// Get the Student Catalog in Response
+		//
+		// ---
+		// produces:
+		// - application/json
+		// responses:
+		//  '200':
+		//   description: Found Results
+		//   schema:
+		//    type: array
+		//    items:
+		//     "$ref": "#/definitions/GetAllStudentsAPIResponse"
+		//  '400':
+		//   description: "Invalid Student Name Specified"
+		//  '404':
+		//   description: "Student Not Found"
 
 		//check for method GET, if any other, respond with error with appropriate status
 		if r.Method != "GET" {

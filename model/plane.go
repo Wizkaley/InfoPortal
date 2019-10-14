@@ -26,7 +26,7 @@ type Plane struct {
 }
 
 // GetPlanesAPIResponse ...
-//swagger:model
+//swagger:model GetPlanesAPIResponse
 type GetPlanesAPIResponse struct {
 	Plane []Plane `json:"Planes"`
 }
