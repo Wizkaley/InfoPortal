@@ -34,7 +34,9 @@ import (
 	"strconv"
 
 	//"fmt"
-	"RESTApp/dao"
+
+	plane "RESTApp/dao/plane"
+	student "RESTApp/dao/student"
 	"RESTApp/model"
 	"net/http"
 
@@ -67,6 +69,9 @@ func Handlers(ds *mgo.Session) http.Handler {
 	server.HandleFunc("/student/{name}", GetByName(ds)).Methods("GET")        //done
 	server.HandleFunc("/student/{name}", UpdateStud(ds)).Methods("PUT")
 	server.HandleFunc("/student", AddStudent(ds)).Methods("POST") // done        //done
+
+	//Book Handlers
+	//server.HandleFunc("/book", book.GetBookSession).Methods("GET")
 
 	return server
 }
@@ -114,7 +119,7 @@ func GetPlanesHandler(ds *mgo.Session) http.HandlerFunc {
 			}
 		}
 
-		allPlanes, err := dao.GetAllPlanes(ds)
+		allPlanes, err := plane.GetAllPlanes(ds)
 		if err != nil {
 			log.Printf("Error while Fetching Planes : %v ", err)
 		}
@@ -183,12 +188,12 @@ func AddPlane(ds *mgo.Session) http.HandlerFunc {
 		}
 
 		if r.Body != nil {
-			var plane model.Plane
-			err := json.NewDecoder(r.Body).Decode(&plane)
+			var pl model.Plane
+			err := json.NewDecoder(r.Body).Decode(&pl)
 			if err != nil {
 				log.Printf("Error while Decode body : %v", err)
 			}
-			dao.PutPlane(plane, ds)
+			plane.PutPlane(pl, ds)
 			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			res, err := json.Marshal("Added Plane Successfully")
@@ -239,7 +244,7 @@ func RemovePlaneByName(ds *mgo.Session) http.HandlerFunc {
 		}
 		params := mux.Vars(r)
 		del := params["name"]
-		ok := dao.DeletePlane(del, ds)
+		ok := plane.DeletePlane(del, ds)
 		if !ok {
 			res, err := json.Marshal("Could Not Delete Server Error")
 			if err != nil {
@@ -311,7 +316,7 @@ func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
 			sendErr(w, http.StatusBadRequest, res)
 		}
 
-		ok := dao.DeletePlaneByID(id, ds)
+		ok := plane.DeletePlaneByID(id, ds)
 		if !ok {
 			res, err := json.Marshal("Could Not Delete Server Error")
 			if err != nil {
@@ -377,7 +382,7 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 			defer r.Body.Close()
 
 			//get a studentObject from GetByName using the extracted name
-			stuToChange, err := dao.GetByName(nm, ds)
+			stuToChange, err := student.GetByName(nm, ds)
 			if err != nil {
 				log.Printf("Error While Fetching Record to Update : %v", err)
 				res, _ := json.Marshal("Invalid Student Name specified")
@@ -400,7 +405,7 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 			stuToChange.StudentMarks = stuNew.StudentMarks //update marks
 
 			//respond with appropriate message after calling Data Access Layer
-			err = dao.UpdateStudent(stuToChange, ds)
+			err = student.UpdateStudent(stuToChange, ds)
 			if err != nil {
 				log.Printf("Could not Update student: %v", err)
 			}
@@ -462,7 +467,7 @@ func GetByName(ds *mgo.Session) http.HandlerFunc {
 		params := mux.Vars(r) //extract name from URL path
 
 		var s model.Student
-		s, err := dao.GetByName(params["nm"], ds) //call data access layer
+		s, err := student.GetByName(params["nm"], ds) //call data access layer
 
 		if err != nil {
 			res, _ := json.Marshal("No Entry Found By That Name")
@@ -525,7 +530,7 @@ func AddStudent(ds *mgo.Session) http.HandlerFunc {
 			//decode the body for student details
 			err := json.NewDecoder(r.Body).Decode(&stu)
 			if err == nil {
-				dao.AddStudent(stu, ds)
+				student.AddStudent(stu, ds)
 				//w.Header().Set("Access-Control-Allow-Methods","POST,OPTIONS")
 				response, _ := json.Marshal("Added Successfully")
 				w.Header().Set("Content-Type", "application/json")
@@ -582,7 +587,7 @@ func DeleteStudent(ds *mgo.Session) http.HandlerFunc {
 
 			//err := dao.GetByName(params["name"])
 			//Respond to the requeset after calling Data Access Layer
-			err := dao.RemoveByName(params["name"], ds)
+			err := student.RemoveByName(params["name"], ds)
 			if err != nil {
 				res, _ := json.Marshal("Could not Find anyone with that name")
 				w.Header().Set("Content-Type", "appication/json")
@@ -644,7 +649,7 @@ func GetAllStudents(ds *mgo.Session) http.HandlerFunc {
 		}
 
 		//respond with appropriate message after calling Data Access Layer
-		res, err := dao.GetAll(ds)
+		res, err := student.GetAll(ds)
 		if err != nil {
 			log.Fatal(err)
 		}

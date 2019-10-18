@@ -2,7 +2,7 @@ package main
 
 import (
 	"RESTApp/controller"
-	"RESTApp/dao"
+	"RESTApp/utils/mongo"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,7 +21,8 @@ import (
 // }
 
 func main() {
-	session, err := dao.Init("localhost:27017")
+	//session, err := utils.Init("localhost:27017")
+	session, err := mongo.GetDataBaseSession("localhost:27017")
 	defer session.Close()
 	if err != nil {
 		log.Printf("Master DB Con Error : %v ", err)
