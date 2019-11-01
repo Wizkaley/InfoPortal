@@ -5,7 +5,7 @@ language: go
 env: GO111MODULE=on GOFLAGS='-mod vendor'
 
 go:
- - master 
+  - master
 
 git:
   depth: 1
@@ -15,3 +15,8 @@ install: true
 notifications:
   email: false
 
+before_script:
+  - go install github.com/golangci/golangci-lint/cmd/golangci-lint
+
+script:
+  - golangci-lint run
