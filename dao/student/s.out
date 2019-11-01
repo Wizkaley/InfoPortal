@@ -1,0 +1,11 @@
+mode: set
+RESTApp/dao/student/StudentDao.go:36.60,40.16 4 1
+RESTApp/dao/student/StudentDao.go:43.2,43.12 1 1
+RESTApp/dao/student/StudentDao.go:40.16,42.3 1 0
+RESTApp/dao/student/StudentDao.go:47.52,52.42 4 1
+RESTApp/dao/student/StudentDao.go:56.2,56.12 1 1
+RESTApp/dao/student/StudentDao.go:52.42,55.3 1 1
+RESTApp/dao/student/StudentDao.go:60.74,66.2 5 1
+RESTApp/dao/student/StudentDao.go:69.68,74.2 4 1
+RESTApp/dao/student/StudentDao.go:77.72,84.2 4 1
+RESTApp/dao/student/StudentDao.go:87.66,94.2 3 0

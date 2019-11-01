@@ -2,10 +2,11 @@ package dao
 
 import (
 	"RESTApp/model"
+	"RESTApp/utils/mongodal"
 	"fmt"
 	"log"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -17,6 +18,8 @@ type testIndices struct {
 	DropDups bool
 }
 
+// NewMongoDAL ...
+var NewMongoDAL = mongodal.NewMongoDBDAL
 var (
 	workIndices = []testIndices{
 		{
@@ -36,7 +39,15 @@ var (
 func AddStudent(stud model.Student, ds *mgo.Session) error {
 	db := ds.Clone()
 	defer db.Close()
-	return db.DB("trial").C("Student").Insert(stud)
+
+	datab := db.DB("trial")
+	dal := NewMongoDAL(datab)
+	err := dal.C("Student").Insert(stud)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 //RemoveByName ...
@@ -44,13 +55,8 @@ func RemoveByName(s string, ds *mgo.Session) error {
 
 	db := ds.Clone()
 	defer db.Close()
-	stu, err := GetByName(s, ds)
-	if err != nil {
-		log.Printf("")
-		return err
-	}
-	err = db.DB("trial").C("Student").Remove(stu)
-	if err != nil {
+	err := db.DB("trial").C("Student").Remove(bson.M{"studentName": s})
+	if err != nil || err == mgo.ErrNotFound {
 		//log
 		return err
 	}
@@ -62,7 +68,8 @@ func GetByName(i string, ds *mgo.Session) (stu model.Student, err error) {
 	fmt.Println(i)
 	db := ds.Clone()
 	defer db.Close()
-	err = db.DB("trial").C("Student").Find(bson.M{"studentName": i}).One(&stu)
+	NewMongoDAL(db.DB("trial")).C("Student").Find(bson.M{"studentName": i}).One(&stu)
+	//err = db.DB("trial").C("Student").Find(bson.M{"studentName": i}).One(&stu)
 	return
 }
 

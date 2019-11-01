@@ -30,30 +30,28 @@
 package controller
 
 import (
-	"fmt"
-	"strconv"
-
-	//"fmt"
-
 	plane "RESTApp/dao/plane"
 	student "RESTApp/dao/student"
 	"RESTApp/model"
+	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
+	validator "gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2"
-
-	//"errors"
-	"encoding/json"
-	"log"
 )
+
+var validate *validator.Validate
 
 //Handlers ...
 func Handlers(ds *mgo.Session) http.Handler {
 	server := mux.NewRouter() //create a new Server and attach handlers to it
 
 	server.PathPrefix("/public/").Handler(
-		http.StripPrefix("/public/", http.FileServer(http.Dir("/home/wiz/go/src/RESTApp/public/"))))
+		http.StripPrefix("/public/", http.FileServer(http.Dir("/home/wiz/go/src/RESTApp/public"))))
 
 	server.HandleFunc("/", redir).Methods("GET")
 	server.HandleFunc("/swagger", GetSwagger).Methods("GET")
@@ -467,7 +465,7 @@ func GetByName(ds *mgo.Session) http.HandlerFunc {
 		params := mux.Vars(r) //extract name from URL path
 
 		var s model.Student
-		s, err := student.GetByName(params["nm"], ds) //call data access layer
+		s, err := student.GetByName(params["name"], ds) //call data access layer
 
 		if err != nil {
 			res, _ := json.Marshal("No Entry Found By That Name")
@@ -510,6 +508,10 @@ func AddStudent(ds *mgo.Session) http.HandlerFunc {
 	//   description: Forbidden, you are not allowed to undertake this operation
 	//  '404':
 	//   description: Not found
+	//  '411':
+	//   description: Error while Decoding POSTED body
+	//  '422':
+	//   description: Unprocessable Entity in POST body
 	//  '500':
 	//   description: Error occurred while processing the request
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -527,18 +529,69 @@ func AddStudent(ds *mgo.Session) http.HandlerFunc {
 			defer r.Body.Close()
 			var stu model.Student
 
+			validate = validator.New()
+			// register validation for 'Student'
+			// NOTE: only have to register a non-pointer type for 'User', validator
+			// internally dereferences during it's type checks
+			validate.RegisterStructValidation(validateStudentStruct, model.Student{})
 			//decode the body for student details
 			err := json.NewDecoder(r.Body).Decode(&stu)
-			if err == nil {
-				student.AddStudent(stu, ds)
-				//w.Header().Set("Access-Control-Allow-Methods","POST,OPTIONS")
-				response, _ := json.Marshal("Added Successfully")
+			if err != nil {
+				res, _ := json.Marshal("Error while decoding body")
 				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
-				w.Write(response)
+				w.WriteHeader(http.StatusLengthRequired)
+				w.Write(res)
 			}
+
+			//Return validation errors
+			//valErrs := []validator.FieldError{}
+			err = validate.Struct(stu)
+			if err != nil {
+				for _, err := range err.(validator.ValidationErrors) {
+					//err.StructField()
+					_ = err
+					//valErrs = append(valErrs, err)
+					//http.Error(w, "Validation Errors please check the supplied model", http.StatusUnprocessableEntity)
+				}
+				res, _ := json.Marshal("Please Provide Necessary Fields to add ")
+				res1, _ := json.Marshal("\n" + err.Error())
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				w.Write(res)
+				w.Write(res1)
+				return
+			}
+			// if err := validateStudentStruct(stu); err != nil {
+			// 	res, _ := json.Marshal("Please Provide Necessary Fields to add")
+			// 	w.Header().Set("Content-Type", "application/json")
+			// 	w.WriteHeader(http.StatusUnprocessableEntity)
+			// 	w.Write(res)
+			// }
+			student.AddStudent(stu, ds)
+			//w.Header().Set("Access-Control-Allow-Methods","POST,OPTIONS")
+			response, _ := json.Marshal("Added Successfully")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(response)
 		}
 	})
+}
+
+func validateStudentStruct(s validator.StructLevel) {
+
+	stud := s.Current().Interface().(model.Student)
+
+	if len(stud.StudentName) == 0 {
+		s.ReportError(stud.StudentName, "StudentName", "studentName", "studentName", "")
+	}
+
+	if stud.StudentAge <= 0 || stud.StudentAge >= 110 {
+		s.ReportError(stud.StudentAge, "StudentAge", "studentAge", "studentAge", "")
+	}
+
+	if stud.StudentMarks < 0 || stud.StudentMarks > 100 {
+		s.ReportError(stud.StudentMarks, "StudentMarks", "studentMarks", "studentMarks", "")
+	}
 }
 
 //DeleteStudent ...

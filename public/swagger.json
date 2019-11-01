@@ -213,6 +213,12 @@
           "404": {
             "description": "Not found"
           },
+          "411": {
+            "description": "Error while Decoding POSTED body"
+          },
+          "422": {
+            "description": "Unprocessable Entity in POST body"
+          },
           "500": {
             "description": "Error occurred while processing the request"
           }

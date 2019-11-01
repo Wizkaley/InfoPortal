@@ -2,8 +2,11 @@ package dao
 
 import (
 	"RESTApp/model"
+	"RESTApp/utils/mongo"
+	"RESTApp/utils/mongodal"
+	"log"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -13,13 +16,12 @@ var abc = false
 func PutPlane(p model.Plane, ds *mgo.Session) (err error) {
 	session := ds
 	clone := session.Clone()
-	err = clone.DB("trial").C("planes").Insert(p)
-	// defer func() {
-	// 	r := recover()
-	// 	if r != nil {
-	// 		log.Print("Error While Inserting Entry")
-	// 	}
-	// }()
+	//err = clone.DB("trial").C("planes").Insert(p)
+	ds, err = mongo.GetDataBaseSession("localhost:27017")
+	err = mongodal.NewMongoDBDAL(ds.DB("trial")).C("planes").Insert(p)
+	if err != nil {
+		log.Print("Could not insert", err)
+	}
 	defer clone.Close()
 	return
 }

@@ -10,4 +10,4 @@ RUN go get -v ./...
 RUN go build .
 EXPOSE 8081
 
-CMD ["/main"]
+CMD ["./RESTApp"]

@@ -3,8 +3,6 @@ package utils
 import (
 	"testing"
 
-	mongodal "RESTApp/utils/mongodal"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,4 +39,3 @@ func TestEnsureIndex(t *testing.T) {
 	//fmt.Println(items)
 	assert.Equal(t, items[1], "studentMarks_1")
 }
-
