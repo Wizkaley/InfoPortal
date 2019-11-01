@@ -2,7 +2,9 @@ dist: xenial
 
 language: go
 
-env: GO111MODULE=on GOFLAGS='-mod vendor'
+env:
+  global:
+    - TRAVIS_GO_VERSION="$(cat .go-version)"
 
 go:
   - master
