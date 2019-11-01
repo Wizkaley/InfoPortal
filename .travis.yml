@@ -2,9 +2,7 @@ dist: trusty
 
 language: go
 
-env:
-  global:
-    - TRAVIS_GO_VERSION="$(cat .go-version)"
+env: GO111MODULE=on GOFLAGS='-mod vendor'
 
 go:
   - "1.13"
@@ -14,10 +12,7 @@ sudo: false
 git:
   depth: 1
 
-install:
-  # Add Godeps dependencies to GOPATH and PATH
-  - export GOPATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace:$GOPATH"
-  - export PATH="${TRAVIS_BUILD_DIR}/Godeps/_workspace/bin:$PATH"
+install: true
 
 notifications:
   email: false
