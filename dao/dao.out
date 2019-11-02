@@ -1,0 +1,23 @@
+mode: set
+RESTApp/dao/StudentDao.go:39.60,46.16 6 1
+RESTApp/dao/StudentDao.go:50.2,50.12 1 1
+RESTApp/dao/StudentDao.go:46.16,49.3 2 0
+RESTApp/dao/StudentDao.go:54.52,59.42 4 1
+RESTApp/dao/StudentDao.go:63.2,63.12 1 1
+RESTApp/dao/StudentDao.go:59.42,62.3 1 1
+RESTApp/dao/StudentDao.go:67.74,74.2 5 1
+RESTApp/dao/StudentDao.go:77.68,82.2 4 1
+RESTApp/dao/StudentDao.go:85.72,92.2 4 1
+RESTApp/dao/StudentDao.go:95.66,102.2 3 0
+RESTApp/dao/PlaneDao.go:16.59,22.16 5 1
+RESTApp/dao/PlaneDao.go:25.2,26.8 2 1
+RESTApp/dao/PlaneDao.go:22.16,24.3 1 0
+RESTApp/dao/PlaneDao.go:30.61,36.2 5 1
+RESTApp/dao/PlaneDao.go:39.75,45.2 5 1
+RESTApp/dao/PlaneDao.go:48.60,53.16 5 1
+RESTApp/dao/PlaneDao.go:56.2,56.13 1 1
+RESTApp/dao/PlaneDao.go:53.16,55.3 1 1
+RESTApp/dao/PlaneDao.go:60.59,64.23 4 1
+RESTApp/dao/PlaneDao.go:67.2,67.13 1 0
+RESTApp/dao/PlaneDao.go:64.23,66.3 1 1
+RESTApp/dao/PlaneDao.go:71.70,77.2 5 1
