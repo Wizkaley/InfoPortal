@@ -1,4 +1,4 @@
-# RESTApp https://travis-ci.org/Wizkaley/RESTApp.svg?branch=master
+# RESTApp <img src="https://travis-ci.org/Wizkaley/RESTApp.svg?branch=master"/>
 REST API's with MongoDB and Go
 
 
