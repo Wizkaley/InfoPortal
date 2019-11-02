@@ -30,8 +30,7 @@
 package controller
 
 import (
-	plane "RESTApp/dao/plane"
-	student "RESTApp/dao/student"
+	"RESTApp/dao"
 	"RESTApp/model"
 	"encoding/json"
 	"fmt"
@@ -45,6 +44,9 @@ import (
 )
 
 var validate *validator.Validate
+var (
+	trial = "trial"
+)
 
 //Handlers ...
 func Handlers(ds *mgo.Session) http.Handler {
@@ -64,7 +66,7 @@ func Handlers(ds *mgo.Session) http.Handler {
 	//Student Handlers
 	server.HandleFunc("/student/{name}", DeleteStudent(ds)).Methods("DELETE") //done
 	server.HandleFunc("/students", GetAllStudents(ds)).Methods("GET")         //done
-	server.HandleFunc("/student/{name}", GetByName(ds)).Methods("GET")        //done
+	server.HandleFunc("/student/{name}", GetStudentByName(ds)).Methods("GET") //done
 	server.HandleFunc("/student/{name}", UpdateStud(ds)).Methods("PUT")
 	server.HandleFunc("/student", AddStudent(ds)).Methods("POST") // done        //done
 
@@ -117,7 +119,7 @@ func GetPlanesHandler(ds *mgo.Session) http.HandlerFunc {
 			}
 		}
 
-		allPlanes, err := plane.GetAllPlanes(ds)
+		allPlanes, err := dao.GetAllPlanes(ds, trial)
 		if err != nil {
 			log.Printf("Error while Fetching Planes : %v ", err)
 		}
@@ -191,7 +193,7 @@ func AddPlane(ds *mgo.Session) http.HandlerFunc {
 			if err != nil {
 				log.Printf("Error while Decode body : %v", err)
 			}
-			plane.PutPlane(pl, ds)
+			dao.PutPlane(pl, ds, trial)
 			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			res, err := json.Marshal("Added Plane Successfully")
@@ -242,7 +244,7 @@ func RemovePlaneByName(ds *mgo.Session) http.HandlerFunc {
 		}
 		params := mux.Vars(r)
 		del := params["name"]
-		ok := plane.DeletePlane(del, ds)
+		ok := dao.DeletePlane(del, ds, trial)
 		if !ok {
 			res, err := json.Marshal("Could Not Delete Server Error")
 			if err != nil {
@@ -296,7 +298,7 @@ func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
 		countCheckSession := ds.Clone()
 		count, err := countCheckSession.DB("trial").C("Student").Count()
 		if err != nil {
-			log.Println("Error while getting count from DB : %v", err)
+			log.Println("Error while getting count from DB", err)
 		}
 
 		params := mux.Vars(r)
@@ -314,7 +316,7 @@ func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
 			sendErr(w, http.StatusBadRequest, res)
 		}
 
-		ok := plane.DeletePlaneByID(id, ds)
+		ok := dao.DeletePlaneByID(id, ds, trial)
 		if !ok {
 			res, err := json.Marshal("Could Not Delete Server Error")
 			if err != nil {
@@ -380,7 +382,7 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 			defer r.Body.Close()
 
 			//get a studentObject from GetByName using the extracted name
-			stuToChange, err := student.GetByName(nm, ds)
+			stuToChange, err := dao.GetByName(nm, ds, trial)
 			if err != nil {
 				log.Printf("Error While Fetching Record to Update : %v", err)
 				res, _ := json.Marshal("Invalid Student Name specified")
@@ -403,7 +405,7 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 			stuToChange.StudentMarks = stuNew.StudentMarks //update marks
 
 			//respond with appropriate message after calling Data Access Layer
-			err = student.UpdateStudent(stuToChange, ds)
+			err = dao.UpdateStudent(stuToChange, ds, trial)
 			if err != nil {
 				log.Printf("Could not Update student: %v", err)
 			}
@@ -421,8 +423,8 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 	})
 }
 
-//GetByName ...
-func GetByName(ds *mgo.Session) http.HandlerFunc {
+//GetStudentByName ...
+func GetStudentByName(ds *mgo.Session) http.HandlerFunc {
 	// swagger:operation GET /student/{name} GET getStudent
 	//
 	// ---
@@ -465,7 +467,7 @@ func GetByName(ds *mgo.Session) http.HandlerFunc {
 		params := mux.Vars(r) //extract name from URL path
 
 		var s model.Student
-		s, err := student.GetByName(params["name"], ds) //call data access layer
+		s, err := dao.GetByName(params["name"], ds, trial) //call data access layer
 
 		if err != nil {
 			res, _ := json.Marshal("No Entry Found By That Name")
@@ -567,7 +569,7 @@ func AddStudent(ds *mgo.Session) http.HandlerFunc {
 			// 	w.WriteHeader(http.StatusUnprocessableEntity)
 			// 	w.Write(res)
 			// }
-			student.AddStudent(stu, ds)
+			dao.AddStudent(stu, ds, trial)
 			//w.Header().Set("Access-Control-Allow-Methods","POST,OPTIONS")
 			response, _ := json.Marshal("Added Successfully")
 			w.Header().Set("Content-Type", "application/json")
@@ -640,7 +642,7 @@ func DeleteStudent(ds *mgo.Session) http.HandlerFunc {
 
 			//err := dao.GetByName(params["name"])
 			//Respond to the requeset after calling Data Access Layer
-			err := student.RemoveByName(params["name"], ds)
+			err := dao.RemoveByName(params["name"], ds, trial)
 			if err != nil {
 				res, _ := json.Marshal("Could not Find anyone with that name")
 				w.Header().Set("Content-Type", "appication/json")
@@ -702,7 +704,7 @@ func GetAllStudents(ds *mgo.Session) http.HandlerFunc {
 		}
 
 		//respond with appropriate message after calling Data Access Layer
-		res, err := student.GetAll(ds)
+		res, err := dao.GetAll(ds, trial)
 		if err != nil {
 			log.Fatal(err)
 		}
