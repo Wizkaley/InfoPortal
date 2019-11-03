@@ -21,4 +21,5 @@ notifications:
   email: false
 
 script:
+  - go vet ./...
   - go build
