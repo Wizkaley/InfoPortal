@@ -68,9 +68,9 @@ func GetByName(i string, ds *mgo.Session, db string) (stu model.Student, err err
 	fmt.Println(i)
 	s := ds.Clone()
 	defer s.Close()
-	NewMongoDAL(s.DB(db)).C("Student").Find(bson.M{"studentName": i}).One(&stu)
+	err = NewMongoDAL(s.DB(db)).C("Student").Find(bson.M{"studentName": i}).One(&stu)
 	//err = db.DB("trial").C("Student").Find(bson.M{"studentName": i}).One(&stu)
-	return
+	return stu, err
 }
 
 //GetAll ...

@@ -429,11 +429,11 @@ func GetStudentByName(ds *mgo.Session, trial string) http.HandlerFunc {
 	// description: Get Student Details by name
 	// summary: "Get Student By Name"
 	// parameters:
-	// - in: path
-	//   name: name
+	// - name: name
+	//   type: string
+	//   description: Name of the Student t
+	//   in: path
 	//   required: true
-	//   schema:
-	//    type: string
 	// responses:
 	//  '200':
 	//   description: Details Fetched Status Ok
@@ -451,11 +451,7 @@ func GetStudentByName(ds *mgo.Session, trial string) http.HandlerFunc {
 		//check for method GET, if anything else, respond with appropriate status
 		if r.Method != "GET" {
 
-			res, err := json.Marshal("Bad Request")
-
-			if err != nil {
-				log.Fatal(err)
-			}
+			res, _ := json.Marshal("Bad Request")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			//http.Error(w, err.Error(), 200)
@@ -463,10 +459,8 @@ func GetStudentByName(ds *mgo.Session, trial string) http.HandlerFunc {
 		}
 
 		params := mux.Vars(r) //extract name from URL path
-
-		n := params["name"]
 		var s model.Student
-		s, err := dao.GetByName(n, ds, trial) //call data access layer
+		s, err := dao.GetByName(params["name"], ds, trial) //call data access layer
 
 		if err != nil {
 			res, _ := json.Marshal("No Entry Found By That Name")
@@ -539,10 +533,7 @@ func AddStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 			//decode the body for student details
 			err := json.NewDecoder(r.Body).Decode(&stu)
 			if err != nil {
-				res, _ := json.Marshal("Error while decoding body")
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusLengthRequired)
-				w.Write(res)
+				http.Error(w, "Error while Decoding Body", 400)
 			}
 
 			//Return validation errors
@@ -611,14 +602,8 @@ func DeleteStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//check if method is DELETE else respond with error
 		if r.Method != "DELETE" {
-			response, err := json.Marshal("Bad Request")
-			if err != nil {
-				log.Printf("Bad Request!: %v", err)
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			w.Write(response)
-
+			http.Error(w, "Bad Request", http.StatusMethodNotAllowed)
+			return
 		}
 
 		//check if body has content
@@ -627,10 +612,9 @@ func DeleteStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 		//defer r.Body.Close()
 		params := mux.Vars(r) //extract name of student from URL path
 
-		n := params["name"]
 		//err := dao.GetByName(params["name"])
 		//Respond to the requeset after calling Data Access Layer
-		err := dao.RemoveByName(n, ds, trial)
+		err := dao.RemoveByName(params["name"], ds, trial)
 		if err != nil {
 			res, _ := json.Marshal("Could not Find anyone with that name")
 			w.Header().Set("Content-Type", "appication/json")
@@ -638,12 +622,7 @@ func DeleteStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 			w.Write(res)
 			return
 		}
-		response, err := json.Marshal("Removed Student")
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-
+		response, _ := json.Marshal("Removed Student")
 		w.Header().Set("Content-Type", "appication/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(response)
