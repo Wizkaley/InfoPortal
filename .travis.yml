@@ -1,13 +1,12 @@
 dist: trusty
 
-os: 
+os:
   - linux
   - osx
- 
- 
+
 language: go
 
-env: [GO111MODULE=on,GOFLAGS='-mod vendor]
+env: GO111MODULE=on GOFLAGS='-mod vendor
 
 go:
   - "1.13"
