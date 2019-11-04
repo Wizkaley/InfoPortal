@@ -235,12 +235,11 @@
         "operationId": "getStudent",
         "parameters": [
           {
+            "type": "string",
+            "description": "Name of the Student t",
             "name": "name",
             "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
+            "required": true
           }
         ],
         "responses": {

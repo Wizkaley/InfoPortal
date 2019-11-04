@@ -16,121 +16,50 @@ func TestController(t *testing.T) {
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
 	//TestGetStudent
-	//req1, _ := http.NewRequest("GET", ser.URL+"/student/test", nil)
-	//req2, _ := http.NewRequest("PATCH", ser.URL+"/student/test", nil)
-	req3, _ := http.NewRequest("GET", ser.URL+"/student/dwawsdsasadasdsaa", nil)
-	// res1, _ := http.DefaultClient.Do(req1)
-	// res2, _ := http.DefaultClient.Do(req2)
-	req3.Header.Set("Content-type", "application/json")
-	res3, _ := http.DefaultClient.Do(req3)
-	// assert.Equalf(t, 200, res1.StatusCode, "Expected %d but got %d ", 200, res1.StatusCode)
-
-	// assert.Equalf(t, http.StatusMethodNotAllowed, res2.StatusCode, "Expected %d but got %d ", http.StatusMethodNotAllowed, res2.StatusCode)
-
-	assert.Equalf(t, http.StatusNotFound, res3.StatusCode, "Expected %d but got %d ", http.StatusNotFound, res3.StatusCode)
-
-	assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "GET", "http://localhost:8081/student/dhasdjhasj", nil, "")
-	// stu := model.Student{
-	// 	StudentName:  "Eshan",
-	// 	StudentAge:   24,
-	// 	StudentMarks: 99,
-	// }
-	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
-	req, _ := http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(json1))
-	req.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest("GET", ser.URL+"/student/Eshan", nil)
 	res, _ := http.DefaultClient.Do(req)
+	assert.Equal(t, 200, res.StatusCode, "Expected %d but got %", 200, res.StatusCode)
+	//assert.HTTPSuccessf(t, GetStudentByName(sess, "testing"), "GET", "http://localhost:8081/student/test", nil, "")
+	//TestGetStudentErrs
+	assert.HTTPErrorf(t, GetStudentByName(sess, "testing"), "GET", "http://localhost:8081/student/jdfhsdjfhks", nil, "")
+
+	// TesGetStudentErr PATCH method
+	assert.HTTPErrorf(t, GetStudentByName(sess, "testing"), "PATCH", "http://localhost:8081/student/jdfhsdjfhks", nil, "")
+
+	// DeleteStudent success
+	//assert.HTTPSuccess(t, DeleteStudent(sess, "testing"), "DELETE", "http://localhost:8081/student/Eshan", nil, "")
+	req, _ = http.NewRequest("DELETE", ser.URL+"/student/Eshan", nil)
+	res, _ = http.DefaultClient.Do(req)
+	assert.Equal(t, 200, res.StatusCode, "")
+
+	// DeleteStudentErr Invalid Input
+	assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "DELETE", "http://localhost:8081/student/dhasdjhasj", nil, "")
+	// DeleteStudentErr Request Method
+	assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "GET", "http://localhost:8081/student/dhasdjhasj", nil, "")
+
+	// AddStudent success
+	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
+	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(json1))
+	req.Header.Set("Content-Type", "application/json")
+	res, _ = http.DefaultClient.Do(req)
 	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
 
-	// TestRemoveStudent
-	// req, _ = http.NewRequest("DELETE", ser.URL+"/student/test", nil)
-	// res, _ = http.DefaultClient.Do(req)
-	// assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
+	// AddStudentErr Bad Request
+	assert.HTTPErrorf(t, AddStudent(sess, "testing"), "GET", "http://localhost:8081/student", nil, "")
 
-	//stu := model.Student{
-	// 	StudentName:  "Eshan",
-	// 	StudentAge:   24,
-	// 	StudentMarks: 99,
-	// }
-	//var students map[string]model.Student
+	// AddStudemtErr validation Error
+	emptyJSON := []byte(`{}`)
+	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(emptyJSON))
+	res, _ = http.DefaultClient.Do(req)
+	assert.Equalf(t, 422, res.StatusCode, "Expected %d but got %d", 404, res.StatusCode)
 
-	//assert.HTTPSuccess(t, DeleteStudent(sess, "testing"), "DELETE", "http://localhost:8081/student/test", nil)
+	// AddStudentErr Decoding Error
+	errJSON := []byte(`{"}`)
+	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(errJSON))
+	res, _ = http.DefaultClient.Do(req)
+	assert.Equalf(t, 400, res.StatusCode, "Expected %d but got %d", 400, res.StatusCode)
 
-	// Test Remove Student
-	//assert.HTTPSuccess(t, AddStudent(sess, "testing"), "POST", "http://localhost:8081/student", url.Values(stu), "")
-	//assert.
 }
-
-// func TestRemoveStudent(t *testing.T) {
-// 	tst := []struct {
-// 		m      string
-// 		uri    string
-// 		status int
-// 	}{
-// 		{
-// 			m:      "DELETE",
-// 			uri:    "/remStud/Pretty",
-// 			status: 200,
-// 		},
-// 	}
-
-// 	s, _ := mongo.GetDataBaseSession("localhost:27017")
-// 	defer s.Close()
-// 	srv := httptest.NewServer(Handlers(s))
-
-// 	for i := range tst {
-// 		req, err := http.NewRequest(tst[i].m, srv.URL+tst[i].uri, nil)
-// 		if err != nil {
-// 			t.Errorf("New Request cound not be generated : %v\n", err)
-// 			t.Errorf("Error Creating a Test Request : %v", err)
-// 		}
-
-// 		res, err := http.DefaultClient.Do(req)
-// 		if err != nil {
-// 			t.Errorf("Error Requesting the Test Server : %v", err)
-// 		}
-
-// 		if res.StatusCode != tst[i].status {
-// 			t.Errorf("Did not receive expected status. Got : %v \t Want: %v", res.StatusCode, tst[i].status)
-// 		}
-
-// 	}
-// }
-
-// func TestRemoveStudentErr(t *testing.T) {
-// 	tst := []struct {
-// 		m      string
-// 		uri    string
-// 		status int
-// 	}{
-// 		{
-// 			m:      "DELETE",
-// 			uri:    "/remStud/Light gYaami",
-// 			status: 404,
-// 		},
-// 	}
-
-// 	s, _ := mongo.GetDataBaseSession("localhost:27017")
-// 	defer s.Close()
-// 	srv := httptest.NewServer(Handlers(s))
-
-// 	for i := range tst {
-// 		req, err := http.NewRequest(tst[i].m, srv.URL+tst[i].uri, nil)
-// 		if err != nil {
-// 			t.Errorf("New Request cound not be generated : %v\n", err)
-// 			t.Errorf("Error Creating a Test Request : %v", err)
-// 		}
-
-// 		res, err := http.DefaultClient.Do(req)
-// 		if err != nil {
-// 			t.Errorf("Error Requesting the Test Server : %v", err)
-// 		}
-
-// 		if res.StatusCode != tst[i].status {
-// 			fmt.Printf("Received Expected Wrong status expected status. Got : %v \t Want: %v", res.StatusCode, tst[i].status)
-// 		}
-
-// 	}
-// }
 
 // func TestUpdateStudentErr(t *testing.T) {
 // 	tst := []struct {
