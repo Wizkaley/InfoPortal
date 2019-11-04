@@ -37,6 +37,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -529,6 +530,7 @@ func AddStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 			defer r.Body.Close()
 			var stu model.Student
 
+			var errs []string
 			validate = validator.New()
 			// register validation for 'Student'
 			// NOTE: only have to register a non-pointer type for 'User', validator
@@ -548,27 +550,14 @@ func AddStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 			err = validate.Struct(stu)
 			if err != nil {
 				for _, err := range err.(validator.ValidationErrors) {
-					//err.StructField()
-					_ = err
-					//valErrs = append(valErrs, err)
-					//http.Error(w, "Validation Errors please check the supplied model", http.StatusUnprocessableEntity)
+					errs = append(errs, err.StructField())
+
 				}
-				res, _ := json.Marshal("Please Provide Necessary Fields to add ")
-				res1, _ := json.Marshal("\n" + err.Error())
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write(res)
-				w.Write(res1)
+				sErr := strings.Join(errs, ",")
+				http.Error(w, "Validation Errors please check the supplied values for Test Status.\nBad Input Provided for - "+sErr, http.StatusUnprocessableEntity)
 				return
 			}
-			// if err := validateStudentStruct(stu); err != nil {
-			// 	res, _ := json.Marshal("Please Provide Necessary Fields to add")
-			// 	w.Header().Set("Content-Type", "application/json")
-			// 	w.WriteHeader(http.StatusUnprocessableEntity)
-			// 	w.Write(res)
-			// }
 			dao.AddStudent(stu, ds, trial)
-			//w.Header().Set("Access-Control-Allow-Methods","POST,OPTIONS")
 			response, _ := json.Marshal("Added Successfully")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
