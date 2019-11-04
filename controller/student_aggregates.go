@@ -9,7 +9,7 @@ import (
 )
 
 // StudentAggregates ...
-func StudentAggregates(ds *mgo.Session) http.HandlerFunc {
+func StudentAggregates(ds *mgo.Session, trial string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != "GET" {

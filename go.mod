@@ -2,7 +2,6 @@ module RESTApp
 
 go 1.13
 
-
 require (
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect

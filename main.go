@@ -32,7 +32,7 @@ func main() {
 	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "OPTIONS", "PUT"})
 	originOk := handlers.AllowedOrigins([]string{"http://localhost:3001"})
 	//http.ListenAndServe(":8081",controller.Handlers())
-	http.ListenAndServe(":8081", handlers.CORS(originOk, headersOk, methodsOk)(controller.Handlers(session)))
+	http.ListenAndServe(":8081", handlers.CORS(originOk, headersOk, methodsOk)(controller.Handlers(session, "trial")))
 
 	//http.ListenAndServe(":8081", controller.Handlers(session))
 }

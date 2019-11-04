@@ -44,31 +44,28 @@ import (
 )
 
 var validate *validator.Validate
-var (
-	trial = "trial"
-)
 
 //Handlers ...
-func Handlers(ds *mgo.Session) http.Handler {
+func Handlers(ds *mgo.Session, trial string) http.Handler {
 	server := mux.NewRouter() //create a new Server and attach handlers to it
 
 	server.PathPrefix("/public/").Handler(
-		http.StripPrefix("/public/", http.FileServer(http.Dir("/home/wiz/go/src/RESTApp/public"))))
+		http.StripPrefix("/public/", http.FileServer(http.Dir("/home/wiz/go/src/InfoPortal/public"))))
 
 	server.HandleFunc("/", redir).Methods("GET")
 	server.HandleFunc("/swagger", GetSwagger).Methods("GET")
-	server.HandleFunc("/plane", AddPlane(ds)).Methods("POST")
-	server.HandleFunc("/planes", GetPlanesHandler(ds)).Methods("GET")
-	server.HandleFunc("/plane/{name}", RemovePlaneByName(ds)).Methods("DELETE")
-	server.HandleFunc("/plane/{id}", RemovePlaneByID(ds)).Methods("DELETE")
-	server.HandleFunc("/studentAggregates", StudentAggregates(ds)).Methods("GET")
+	server.HandleFunc("/plane", AddPlane(ds, trial)).Methods("POST")
+	server.HandleFunc("/planes", GetPlanesHandler(ds, trial)).Methods("GET")
+	server.HandleFunc("/plane/{name}", RemovePlaneByName(ds, trial)).Methods("DELETE")
+	server.HandleFunc("/plane/{id}", RemovePlaneByID(ds, trial)).Methods("DELETE")
+	server.HandleFunc("/studentAggregates", StudentAggregates(ds, trial)).Methods("GET")
 
 	//Student Handlers
-	server.HandleFunc("/student/{name}", DeleteStudent(ds)).Methods("DELETE") //done
-	server.HandleFunc("/students", GetAllStudents(ds)).Methods("GET")         //done
-	server.HandleFunc("/student/{name}", GetStudentByName(ds)).Methods("GET") //done
-	server.HandleFunc("/student/{name}", UpdateStud(ds)).Methods("PUT")
-	server.HandleFunc("/student", AddStudent(ds)).Methods("POST") // done        //done
+	server.HandleFunc("/student/{name}", DeleteStudent(ds, trial)).Methods("DELETE") //done
+	server.HandleFunc("/students", GetAllStudents(ds, trial)).Methods("GET")         //done
+	server.HandleFunc("/student/{name}", GetStudentByName(ds, trial)).Methods("GET") //done
+	server.HandleFunc("/student/{name}", UpdateStud(ds, trial)).Methods("PUT")
+	server.HandleFunc("/student", AddStudent(ds, trial)).Methods("POST") // done        //done
 
 	//Book Handlers
 	//server.HandleFunc("/book", book.GetBookSession).Methods("GET")
@@ -86,7 +83,7 @@ func redir(w http.ResponseWriter, r *http.Request) {
 }
 
 //GetPlanesHandler ...
-func GetPlanesHandler(ds *mgo.Session) http.HandlerFunc {
+func GetPlanesHandler(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation GET /planes GET getPlanes
 	//
 	// Get Planes
@@ -143,7 +140,7 @@ func sendErr(w http.ResponseWriter, stat int, res []byte) {
 }
 
 // AddPlane ...
-func AddPlane(ds *mgo.Session) http.HandlerFunc {
+func AddPlane(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation POST /plane POST putPlane
 	//
 	//
@@ -207,7 +204,7 @@ func AddPlane(ds *mgo.Session) http.HandlerFunc {
 }
 
 // RemovePlaneByName ...
-func RemovePlaneByName(ds *mgo.Session) http.HandlerFunc {
+func RemovePlaneByName(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation DELETE /plane/{name} DELETE removePlane
 	//
 	// Delete Plane
@@ -260,7 +257,7 @@ func RemovePlaneByName(ds *mgo.Session) http.HandlerFunc {
 }
 
 // RemovePlaneByID ...
-func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
+func RemovePlaneByID(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation DELETE /plane/{id} DELETE removePlane
 	//
 	// Remove Plane
@@ -333,7 +330,7 @@ func RemovePlaneByID(ds *mgo.Session) http.HandlerFunc {
 }
 
 //UpdateStud Update Student Info ByName
-func UpdateStud(ds *mgo.Session) http.HandlerFunc {
+func UpdateStud(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation PUT /student/{name} UPDATE updateStudent
 	//
 	// Update a Students Information in The Student Catalog
@@ -424,7 +421,7 @@ func UpdateStud(ds *mgo.Session) http.HandlerFunc {
 }
 
 //GetStudentByName ...
-func GetStudentByName(ds *mgo.Session) http.HandlerFunc {
+func GetStudentByName(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation GET /student/{name} GET getStudent
 	//
 	// ---
@@ -460,14 +457,15 @@ func GetStudentByName(ds *mgo.Session) http.HandlerFunc {
 			}
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusMethodNotAllowed)
-			http.Error(w, err.Error(), 200)
+			//http.Error(w, err.Error(), 200)
 			w.Write(res)
 		}
 
 		params := mux.Vars(r) //extract name from URL path
 
+		n := params["name"]
 		var s model.Student
-		s, err := dao.GetByName(params["name"], ds, trial) //call data access layer
+		s, err := dao.GetByName(n, ds, trial) //call data access layer
 
 		if err != nil {
 			res, _ := json.Marshal("No Entry Found By That Name")
@@ -486,7 +484,7 @@ func GetStudentByName(ds *mgo.Session) http.HandlerFunc {
 }
 
 //AddStudent ...
-func AddStudent(ds *mgo.Session) http.HandlerFunc {
+func AddStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation POST /student POST AddStudent
 	//
 	// Add Student
@@ -597,7 +595,7 @@ func validateStudentStruct(s validator.StructLevel) {
 }
 
 //DeleteStudent ...
-func DeleteStudent(ds *mgo.Session) http.HandlerFunc {
+func DeleteStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 	// swagger:operation DELETE /student/{name} DELETE deleteStudent
 	//
 	// Delete Stident
@@ -611,7 +609,7 @@ func DeleteStudent(ds *mgo.Session) http.HandlerFunc {
 	// - name: name
 	//   type: string
 	//   description: Name of the Student to Delete
-	//   in: query
+	//   in: path
 	//   required: true
 	// responses:
 	//  200:
@@ -635,36 +633,37 @@ func DeleteStudent(ds *mgo.Session) http.HandlerFunc {
 		}
 
 		//check if body has content
-		if r.Body != nil {
+		//if r.Body != nil {
 
-			defer r.Body.Close()
-			params := mux.Vars(r) //extract name of student from URL path
+		//defer r.Body.Close()
+		params := mux.Vars(r) //extract name of student from URL path
 
-			//err := dao.GetByName(params["name"])
-			//Respond to the requeset after calling Data Access Layer
-			err := dao.RemoveByName(params["name"], ds, trial)
-			if err != nil {
-				res, _ := json.Marshal("Could not Find anyone with that name")
-				w.Header().Set("Content-Type", "appication/json")
-				w.WriteHeader(http.StatusNotFound)
-				w.Write(res)
-				return
-			}
-			response, err := json.Marshal("Removed Student")
-			if err != nil {
-				log.Fatal(err)
-				return
-			}
-
+		n := params["name"]
+		//err := dao.GetByName(params["name"])
+		//Respond to the requeset after calling Data Access Layer
+		err := dao.RemoveByName(n, ds, trial)
+		if err != nil {
+			res, _ := json.Marshal("Could not Find anyone with that name")
 			w.Header().Set("Content-Type", "appication/json")
-			w.WriteHeader(http.StatusOK)
-			w.Write(response)
+			w.WriteHeader(http.StatusNotFound)
+			w.Write(res)
+			return
 		}
+		response, err := json.Marshal("Removed Student")
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		w.Header().Set("Content-Type", "appication/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(response)
+		//}
 	})
 }
 
 //GetAllStudents ...
-func GetAllStudents(ds *mgo.Session) http.HandlerFunc {
+func GetAllStudents(ds *mgo.Session, trial string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// swagger:operation GET /students GET getAllStudents
 		//
