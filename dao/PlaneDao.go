@@ -61,7 +61,7 @@ func DeletePlaneByID(id int, ds *mgo.Session, db string) (stat bool) {
 	session := ds.Clone()
 	defer session.Clone()
 	err := session.DB(db).C("planes").Remove(bson.M{"id": id})
-	if err != nil || abc {
+	if err != nil {
 		return false
 	}
 	return true

@@ -3,6 +3,7 @@ package controller
 import (
 	"RESTApp/utils/mongo"
 	"bytes"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,7 +16,92 @@ func TestController(t *testing.T) {
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
+
+}
+
+func TestAddPlaneHandler(t *testing.T) {
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
+
+	//Add Success
+	json1 := []byte(`{"id":4, "name":"F21JET","wheels": 6,"engines":4,"type":"Attack"}`)
+	req, _ := http.NewRequest("POST", ser.URL+"/plane", bytes.NewBuffer(json1))
+	req.Header.Set("Content-Type", "application/json")
+	res, _ := http.DefaultClient.Do(req)
+	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
+
+	// Decoding Error
+	json1 = []byte(`{"id":4, "name":"F21JET","wheels": "6","engines":"4","type":types"}`)
+	req, _ = http.NewRequest("POST", ser.URL+"/plane", bytes.NewBuffer(json1))
+	req.Header.Set("Content-Type", "application/json")
+	res, _ = http.DefaultClient.Do(req)
+	assert.Error(t, errors.New("Error while Decoding Body"), "")
+
+	//Bad request
+	assert.HTTPError(t, AddPlane(sess, "testing"), "DELETE", "http://localhost:8081/planes", nil)
+
+	// Validation Error
+	json1 = []byte(`{}`)
+	req, _ = http.NewRequest("POST", ser.URL+"/plane", bytes.NewBuffer(json1))
+	req.Header.Set("Content-Type", "application/json")
+	res, _ = http.DefaultClient.Do(req)
+	assert.Equalf(t, 400, res.StatusCode, "Expected %d but got %d ", 400, res.StatusCode)
+
+}
+
+// func TestRemovePlaneByIDHandler(t *testing.T) {
+// 	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+// 	defer sess.Close()
+// 	ser := httptest.NewServer(Handlers(sess, "testing"))
+// 	defer ser.Close()
+
+// 	// success
+// 	req, _ := http.NewRequest("DELETE", ser.URL+"/plane/2", nil)
+// 	req.Header.Set("Content-Type", "application/json")
+// 	res, _ := http.DefaultClient.Do(req)
+// 	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
+// }
+
+func TestRemovePlaneByName(t *testing.T) {
+
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
+
+	// Remove Success
+	req, _ := http.NewRequest("DELETE", ser.URL+"/plane/F21JET", nil)
+	req.Header.Set("Content-Type", "application/json")
+	res, _ := http.DefaultClient.Do(req)
+	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
+
+	// wrong Request Method
+	assert.HTTPErrorf(t, RemovePlaneByName(sess, "testing"), "POST", "http://localhost:8081/plane/F21", nil, "")
+
+	// invalid plane name to delete
+	assert.HTTPErrorf(t, RemovePlaneByName(sess, "testing"), "DELETE", "http://localhost:8081/plane/asdfsds", nil, "")
+}
+
+func TestGetPlanesHandler(t *testing.T) {
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
+
+	//success test
+	assert.HTTPSuccessf(t, GetPlanesHandler(sess, "testing"), "GET", "http://localhost:8081/planes", nil, "")
+	// bad request test
+	assert.HTTPErrorf(t, GetPlanesHandler(sess, "testing"), "PATCH", "http://localhost:8081/planes", nil, "")
+}
+
+func TestGetStudentByNameHandler(t *testing.T) {
 	//TestGetStudent
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
 	req, _ := http.NewRequest("GET", ser.URL+"/student/Eshan", nil)
 	res, _ := http.DefaultClient.Do(req)
 	assert.Equal(t, 200, res.StatusCode, "Expected %d but got %", 200, res.StatusCode)
@@ -25,11 +111,33 @@ func TestController(t *testing.T) {
 
 	// TesGetStudentErr PATCH method
 	assert.HTTPErrorf(t, GetStudentByName(sess, "testing"), "PATCH", "http://localhost:8081/student/jdfhsdjfhks", nil, "")
+}
+
+func TestGetAllStudentsHandler(t *testing.T) {
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
+
+	// success get students
+	assert.HTTPSuccessf(t, GetAllStudents(sess, "testing"), "GET", "http://localhost:8081/students", nil, "")
+
+	// error request method
+
+	assert.HTTPError(t, GetAllStudents(sess, "testing"), "POST", "http://localhost:8081/students", nil, "")
+}
+
+func TestDeleteStudentHandler(t *testing.T) {
+
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
 
 	// DeleteStudent success
 	//assert.HTTPSuccess(t, DeleteStudent(sess, "testing"), "DELETE", "http://localhost:8081/student/Eshan", nil, "")
-	req, _ = http.NewRequest("DELETE", ser.URL+"/student/Eshan", nil)
-	res, _ = http.DefaultClient.Do(req)
+	req, _ := http.NewRequest("DELETE", ser.URL+"/student/Eshan", nil)
+	res, _ := http.DefaultClient.Do(req)
 	assert.Equal(t, 200, res.StatusCode, "")
 
 	// DeleteStudentErr Invalid Input
@@ -37,11 +145,20 @@ func TestController(t *testing.T) {
 	// DeleteStudentErr Request Method
 	assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "GET", "http://localhost:8081/student/dhasdjhasj", nil, "")
 
+}
+
+func TestAddStudentHandelr(t *testing.T) {
+
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
+
 	// AddStudent success
 	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
-	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(json1))
+	req, _ := http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(json1))
 	req.Header.Set("Content-Type", "application/json")
-	res, _ = http.DefaultClient.Do(req)
+	res, _ := http.DefaultClient.Do(req)
 	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
 
 	// AddStudentErr Bad Request
@@ -58,7 +175,6 @@ func TestController(t *testing.T) {
 	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(errJSON))
 	res, _ = http.DefaultClient.Do(req)
 	assert.Equalf(t, 400, res.StatusCode, "Expected %d but got %d", 400, res.StatusCode)
-
 }
 
 // func TestUpdateStudentErr(t *testing.T) {

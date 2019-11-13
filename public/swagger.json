@@ -67,39 +67,33 @@
     },
     "/plane/{id}": {
       "delete": {
-        "description": "Removes a Plane from DB",
+        "description": "Delete A Plane From Plane Catalog",
         "produces": [
           "application/json"
         ],
         "tags": [
           "DELETE"
         ],
-        "summary": "Remove Plane",
-        "operationId": "removePlane",
+        "summary": "Delete Plane",
+        "operationId": "deletePlane",
         "parameters": [
           {
-            "type": "integer",
-            "description": "id of the plane to remove",
+            "type": "string",
+            "description": "ID of the Plane to Delete",
             "name": "id",
-            "in": "query",
+            "in": "path",
             "required": true
           }
         ],
         "responses": {
           "200": {
-            "description": "Plane Removed Successfully"
-          },
-          "401": {
-            "description": "Unauthorized, Likely Invalid or Missing Token"
-          },
-          "403": {
-            "description": "Forbidden, you are not allowed to undertake this operation"
+            "description": "Removed Plane from the Catalog"
           },
           "404": {
-            "description": "Not found"
+            "description": "Plane Not Found"
           },
           "500": {
-            "description": "Error occurred while processing the request"
+            "description": "Invalid Plane ID Specified"
           }
         }
       }
@@ -120,7 +114,7 @@
           {
             "description": "The name of the Plane to be removed",
             "name": "name",
-            "in": "query",
+            "in": "path",
             "required": true
           }
         ],
@@ -401,14 +395,14 @@
       "properties": {
         "engines": {
           "description": "no. of engines of the plane",
-          "type": "string",
+          "type": "integer",
           "format": "int64",
           "minimum": 1,
           "x-go-name": "Engines"
         },
         "id": {
           "description": "Id for the plane",
-          "type": "string",
+          "type": "integer",
           "format": "int64",
           "minimum": 1,
           "x-go-name": "Pid"
@@ -427,7 +421,7 @@
         },
         "wheels": {
           "description": "no. of wheels of the plane",
-          "type": "string",
+          "type": "integer",
           "format": "int64",
           "minimum": 1,
           "x-go-name": "NoWheels"

@@ -30,6 +30,7 @@
 package controller
 
 import (
+	"RESTApp/commons"
 	"RESTApp/dao"
 	"RESTApp/model"
 	"encoding/json"
@@ -110,23 +111,16 @@ func GetPlanesHandler(ds *mgo.Session, trial string) http.HandlerFunc {
 	//    description: Error occurred while processing the request
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
-			res, err := json.Marshal("Bad Request")
-			if err != nil {
-				log.Printf("Error while Marshalling: %v", err)
-				sendErr(w, http.StatusMethodNotAllowed, res)
-			}
-		}
+			http.Error(w, "Error Bad Request", http.StatusMethodNotAllowed)
 
+		}
 		allPlanes, err := dao.GetAllPlanes(ds, trial)
 		if err != nil {
-			log.Printf("Error while Fetching Planes : %v ", err)
+			http.Error(w, "Error while Fetching Planes ", http.StatusInternalServerError)
+			return
 		}
 
-		res, err := json.Marshal(allPlanes)
-		if err != nil {
-			log.Printf("Error while Marshalling to send Result")
-		}
-
+		res, _ := json.Marshal(allPlanes)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
@@ -176,28 +170,28 @@ func AddPlane(ds *mgo.Session, trial string) http.HandlerFunc {
 	//
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
-			res, err := json.Marshal("Bad Request")
-			if err != nil {
-				log.Printf("Error while Marshalling : %v", err)
-			}
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			w.Write(res)
+			http.Error(w, "Bad Request", http.StatusMethodNotAllowed)
+			return
 		}
 
 		if r.Body != nil {
 			var pl model.Plane
+
 			err := json.NewDecoder(r.Body).Decode(&pl)
 			if err != nil {
 				log.Printf("Error while Decode body : %v", err)
 			}
+
+			// Validation
+			valErrs, err := commons.SimpleStructValidator(pl, model.Plane{})
+			if err != nil {
+				http.Error(w, "Validating Errors Please check the Values supplied. \n Bad Input for - "+valErrs, http.StatusBadRequest)
+				return
+			}
 			dao.PutPlane(pl, ds, trial)
 			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			res, err := json.Marshal("Added Plane Successfully")
-			if err != nil {
-				log.Printf("Error while Marshalling : %v", err)
-			}
+			res, _ := json.Marshal("Added Plane Successfully")
 			w.Write(res)
 			defer r.Body.Close()
 		}
@@ -217,7 +211,7 @@ func RemovePlaneByName(ds *mgo.Session, trial string) http.HandlerFunc {
 	// - application/xml
 	// parameters:
 	// - name: name
-	//   in: query
+	//   in: path
 	//   required: true
 	//   description: The name of the Plane to be removed
 	// responses:
@@ -234,66 +228,58 @@ func RemovePlaneByName(ds *mgo.Session, trial string) http.HandlerFunc {
 	//
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" {
-			res, err := json.Marshal("Bad Request")
-			if err != nil {
-				log.Printf("Error while encoding error message : %v", err)
-			}
+			res, _ := json.Marshal("Bad Request")
 			sendErr(w, http.StatusMethodNotAllowed, res)
 		}
 		params := mux.Vars(r)
 		del := params["name"]
+		fmt.Println("Name to be Deleted:", del)
 		ok := dao.DeletePlane(del, ds, trial)
 		if !ok {
-			res, err := json.Marshal("Could Not Delete Server Error")
-			if err != nil {
-				log.Printf("Error while encoding error message : %v", err)
-			}
+			res, _ := json.Marshal("Could Not Delete Server Error")
 			sendErr(w, http.StatusInternalServerError, res)
+		} else {
+			res, _ := json.Marshal("Deleted Successfully")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(res)
 		}
-		res, _ := json.Marshal("Deleted Successfully")
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(res)
 	})
 }
 
 // RemovePlaneByID ...
 func RemovePlaneByID(ds *mgo.Session, trial string) http.HandlerFunc {
-	// swagger:operation DELETE /plane/{id} DELETE removePlane
+	// swagger:operation DELETE /plane/{id} DELETE deletePlane
 	//
-	// Remove Plane
+	// Delete Plane
 	//
-	// Removes a Plane from DB
+	// Delete A Plane From Plane Catalog
+	//
 	// ---
 	// produces:
 	// - application/json
 	// parameters:
 	// - name: id
-	//   type: integer
-	//   description: id of the plane to remove
+	//   type: string
+	//   description: ID of the Plane to Delete
+	//   in: path
 	//   required: true
-	//   in: query
 	// responses:
-	//   '200':
-	//     description: Plane Removed Successfully
-	//   '401':
-	//     description: Unauthorized, Likely Invalid or Missing Token
-	//   '403':
-	//     description: Forbidden, you are not allowed to undertake this operation
-	//   '404':
-	//     description: Not found
-	//   '500':
-	//     description: Error occurred while processing the request
+	//  200:
+	//   description: Removed Plane from the Catalog
+	//  500:
+	//   description: "Invalid Plane ID Specified"
+	//  404:
+	//   description: "Plane Not Found"
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "DELETE" {
-			res, err := json.Marshal("Bad Request")
-			if err != nil {
-				log.Printf("Error while encoding error message : %v", err)
-			}
+			res, _ := json.Marshal("Bad Request")
 			sendErr(w, http.StatusMethodNotAllowed, res)
+			return
 		}
 
 		countCheckSession := ds.Clone()
+		defer countCheckSession.Close()
 		count, err := countCheckSession.DB("trial").C("Student").Count()
 		if err != nil {
 			log.Println("Error while getting count from DB", err)
@@ -301,26 +287,27 @@ func RemovePlaneByID(ds *mgo.Session, trial string) http.HandlerFunc {
 
 		params := mux.Vars(r)
 		idIns := params["id"]
+		fmt.Println("IN PATH :", params)
+		log.Println(params)
 		id, err := strconv.Atoi(idIns)
+		fmt.Println("IN INTEGER", id)
+		log.Print(id)
 		if err != nil {
 			res, _ := json.Marshal("Server Error")
 			sendErr(w, http.StatusInternalServerError, res)
+			return
 		}
 		if id > count {
-			res, err := json.Marshal("ID with the given value Doesn't Exist")
-			if err != nil {
-				log.Printf("Error while encoding error message : %v", err)
-			}
+			res, _ := json.Marshal("ID with the given value Doesn't Exist")
 			sendErr(w, http.StatusBadRequest, res)
+			return
 		}
 
 		ok := dao.DeletePlaneByID(id, ds, trial)
 		if !ok {
-			res, err := json.Marshal("Could Not Delete Server Error")
-			if err != nil {
-				log.Printf("Error while encoding error message : %v", err)
-			}
+			res, _ := json.Marshal("Could Not Delete Server Error")
 			sendErr(w, http.StatusInternalServerError, res)
+			return
 		}
 		res, _ := json.Marshal("Deleted Successfully")
 		w.Header().Set("Content-Type", "application/json")
@@ -656,18 +643,8 @@ func GetAllStudents(ds *mgo.Session, trial string) http.HandlerFunc {
 
 		//check for method GET, if any other, respond with error with appropriate status
 		if r.Method != "GET" {
-			response, err := json.Marshal("Bad Request")
-
-			if err != nil {
-				log.Printf("Bad Request!: %v ", err)
-			}
-
-			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			//w.Header().S
-			//w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			w.Write(response)
+			http.Error(w, "Bad Request", http.StatusMethodNotAllowed)
+			return
 		}
 
 		//respond with appropriate message after calling Data Access Layer

@@ -129,8 +129,11 @@ func TestGetAllPlanes(t *testing.T) {
 func TestDeleteByID(t *testing.T) {
 	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
 
-	err := DeletePlaneByID(7, gDB, testingdb)
-	assert.Equal(t, true, err)
+	// err := DeletePlaneByID(7, gDB, testingdb)
+	// assert.Equal(t, true, err)
+
+	err := DeletePlaneByID(2, gDB, testingdb)
+	assert.Equal(t, false, err)
 }
 
 func TestDeleteByIDErr(t *testing.T) {
