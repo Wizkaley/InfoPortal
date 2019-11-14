@@ -10,12 +10,11 @@ import (
 var validate *v.Validate
 
 // SimpleStructValidator is a Utility to validate POST request bodies
-// It takes in the Value POSTed, a validator function which contain rules,
+// It takes in the Value POSTed and
 // the actual model structure which contain validate tags
 // Remember to tag your model with 'validate' before using this utility
 // SimpleStructValidator Returs a string array of errors and a custom Error
-// NOTE : a Struct level fuction has to be defined (fn), describing the rules to validate that Struct
-func SimpleStructValidator(toBeValidated interface{}, types ...interface{}) (string, error) {
+func SimpleStructValidator(toBeValidated interface{}, types ...interface{}) error {
 	// string array to catch the validation Errors
 	var validationErrs []string
 	// new instance of Validator
@@ -31,7 +30,7 @@ func SimpleStructValidator(toBeValidated interface{}, types ...interface{}) (str
 		}
 		sErr := strings.Join(validationErrs, ",")
 		//http.Error(w, "Validation Errors please check the supplied values for Test Status.\nBad Input Provided for - "+sErr, http.StatusUnprocessableEntity)
-		return sErr, errors.New("Validation Error, throw a 400")
+		return errors.New(sErr)
 	}
-	return "", nil
+	return nil
 }

@@ -30,7 +30,6 @@
 package controller
 
 import (
-	"RESTApp/commons"
 	"RESTApp/dao"
 	"RESTApp/model"
 	"encoding/json"
@@ -181,13 +180,18 @@ func AddPlane(ds *mgo.Session, trial string) http.HandlerFunc {
 			if err != nil {
 				log.Printf("Error while Decode body : %v", err)
 			}
-
+			val := validator.New()
+			err = val.Struct(pl)
 			// Validation
-			valErrs, err := commons.SimpleStructValidator(pl, model.Plane{})
+			//err = commons.SimpleStructValidator(pl, model.Plane{})
 			if err != nil {
-				http.Error(w, "Validating Errors Please check the Values supplied. \n Bad Input for - "+valErrs, http.StatusBadRequest)
+				//log.Printf("Valdation Error %v", err)
+				//if _, ok := err.(*validator.InvalidValidationError); ok {
+				http.Error(w, "Validating Errors Please check the Values supplied.\nBad Input for - "+err.Error(), http.StatusBadRequest)
 				return
+				//}
 			}
+
 			dao.PutPlane(pl, ds, trial)
 			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
@@ -347,11 +351,7 @@ func UpdateStud(ds *mgo.Session, trial string) http.HandlerFunc {
 
 		//check for method PUT, if anything else, respond with appropriate status
 		if r.Method != "PUT" {
-			res, err := json.Marshal("Bad Request")
-			if err != nil {
-				log.Printf("Bad Request : %v", err)
-			}
-
+			res, _ := json.Marshal("Bad Request")
 			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			w.Write(res)
@@ -380,9 +380,6 @@ func UpdateStud(ds *mgo.Session, trial string) http.HandlerFunc {
 
 			//Decode values from body sent from client into a studentObject
 			err = json.NewDecoder(r.Body).Decode(&stuNew)
-			if err != nil {
-				log.Printf("Error While Deconding Body : %v", err)
-			}
 
 			//update the values from the body to The object got from the Database
 			//stuToChange.StudentName = stuNew.StudentName

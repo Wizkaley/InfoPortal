@@ -177,6 +177,40 @@ func TestAddStudentHandelr(t *testing.T) {
 	assert.Equalf(t, 400, res.StatusCode, "Expected %d but got %d", 400, res.StatusCode)
 }
 
+func TestUpdateStudentHandler(t *testing.T) {
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
+
+	//Successfull Update
+	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
+	req, _ := http.NewRequest("PUT", ser.URL+"/student/Eshan", bytes.NewBuffer(json1))
+	res, _ := http.DefaultClient.Do(req)
+	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
+
+	//Invalid Name to Update
+	json1 = []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
+	req, _ = http.NewRequest("PUT", ser.URL+"/student/dfsdf", bytes.NewBuffer(json1))
+	res, _ = http.DefaultClient.Do(req)
+	assert.Equalf(t, 404, http.StatusNotFound, "Expected %d but got %d ", 404, http.StatusNotFound)
+
+	// UpdateStuden Bad Request
+	assert.HTTPErrorf(t, UpdateStud(sess, "testing"), "GET", "http://localhost:8081/student/rewr", nil, "")
+}
+
+// func TestGetSwagger(t *testing.T) {
+// 	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+// 	defer sess.Close()
+// 	ser := httptest.NewServer(Handlers(sess, "testing"))
+// 	defer ser.Close()
+
+// 	req, _ := http.NewRequest("GET", ser.URL+"/swagger", nil)
+// 	res, _ := http.DefaultClient.Do(req)
+// 	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
+// 	//assert.HTTPSuccess(t, GetSwagger, "GET", "/swagger", nil, nil)
+// }
+
 // func TestUpdateStudentErr(t *testing.T) {
 // 	tst := []struct {
 // 		m    string

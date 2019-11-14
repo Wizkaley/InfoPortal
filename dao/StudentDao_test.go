@@ -4,12 +4,10 @@ import (
 	mocks "RESTApp/mocks"
 	"RESTApp/model"
 	mongo "RESTApp/utils/mongo"
-	"errors"
 	"fmt"
 	"testing"
 
 	mgo "gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 
 	"github.com/golang/mock/gomock"
 )
@@ -36,26 +34,16 @@ func TestAddStudentErr(t *testing.T) {
 	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 
-	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
-
-	db := mocks.NewMockMgoDBDAL(mockCtrl)
-	coll := mocks.NewMockMgoCollectionDAL(mockCtrl)
-
-	db.EXPECT().C("testing").Return(coll).Times(1)
-
-	err := errors.New("Mock Insert Error")
-
-	coll.EXPECT().Insert(gomock.Any()).Return(err).Times(1)
-	// coll.EXPECT().Insert(gomock.Any()).Return(err).Times(1)
-
 	testStu := model.Student{
 		StudentName:  "test",
 		StudentAge:   24,
 		StudentMarks: 24,
 	}
 
-	AddStudent(testStu, ds, testingdb)
+	err := AddStudent(testStu, ds, testingdb)
+	if err != nil {
+		t.Errorf("Failed: %v", err)
+	}
 	//NewMongoDAL = mockMongo
 }
 
@@ -82,25 +70,25 @@ func TestRemoveStudentErr(t *testing.T) {
 func TestGetByName(t *testing.T) {
 	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
-	// var n = "ASAP"
+	var n = "Pretty"
 
-	// stud, err := GetByName(n, ds)
-	// if err != nil {
-	// 	t.Errorf("Error Not Expected but : %v", err)
-	// }
-	// fmt.Println(stud)
-	// ------------------------------------------
-	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
+	stud, err := GetByName(n, ds, "testing")
+	if err != nil {
+		t.Errorf("Error Not Expected but : %v", err)
+	}
+	fmt.Println(stud)
+	//------------------------------------------
+	// mockCtrl := gomock.NewController(t)
+	// defer mockCtrl.Finish()
 
-	db := mocks.NewMockMgoDBDAL(mockCtrl)
-	coll := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	// db := mocks.NewMockMgoDBDAL(mockCtrl)
+	// coll := mocks.NewMockMgoCollectionDAL(mockCtrl)
 
-	db.EXPECT().C("testing").Return(coll).Times(1)
+	// db.EXPECT().C("testing").Return(coll).Times(1)
 
-	coll.EXPECT().Find(bson.M{"studentName": "ASAP"}).Return(nil).Times(1)
+	// coll.EXPECT().Find("ASAP").Return(nil).Times(1)
 
-	_, _ = GetByName("ASAP", ds, testingdb)
+	// _, _ = GetByName("ASAP", ds, testingdb)
 }
 
 func TestGetByNameErr(t *testing.T) {
