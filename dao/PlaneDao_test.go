@@ -7,10 +7,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/mgo.v2"
 )
 
-var gDB *mgo.Session
+//var gDB *mgo.Session
 
 var testingdb = "testing"
 

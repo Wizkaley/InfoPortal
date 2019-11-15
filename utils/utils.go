@@ -37,9 +37,9 @@ func Init(path string) (sess *mgo.Session, err error) {
 	return
 }
 
-func ensureInd(s *mgo.Session, db string, c string) (sesh *mgo.Session) {
-	//ses.DB("trial").C("Student").EnsureIndex(workIndices[0].Index)
-	s.DB(db).C(c).EnsureIndexKey("studentMarks")
-	sesh = s
-	return
-}
+// func ensureInd(s *mgo.Session, db string, c string) (sesh *mgo.Session) {
+// 	//ses.DB("trial").C("Student").EnsureIndex(workIndices[0].Index)
+// 	s.DB(db).C(c).EnsureIndexKey("studentMarks")
+// 	sesh = s
+// 	return
+// }
