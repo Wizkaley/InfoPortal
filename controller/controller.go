@@ -40,6 +40,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/mitchellh/go-homedir"
 	validator "gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2"
 )
@@ -49,9 +50,9 @@ var validate *validator.Validate
 //Handlers ...
 func Handlers(ds *mgo.Session, trial string) http.Handler {
 	server := mux.NewRouter() //create a new Server and attach handlers to it
-
+	dir, _ := homedir.Dir()   // get the home directory of the user to host swagger ui
 	server.PathPrefix("/public/").Handler(
-		http.StripPrefix("/public/", http.FileServer(http.Dir("/home/wiz/go/src/InfoPortal/public"))))
+		http.StripPrefix("/public/", http.FileServer(http.Dir(dir+"/go/src/InfoPortal/public"))))
 
 	server.HandleFunc("/", redir).Methods("GET")
 	server.HandleFunc("/swagger", GetSwagger).Methods("GET")

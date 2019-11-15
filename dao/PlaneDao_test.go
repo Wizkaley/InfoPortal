@@ -108,6 +108,13 @@ func TestGetAllPlanes(t *testing.T) {
 	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer gDB.Close()
 
+	var p model.Plane
+	p.Pid = 2
+	p.Name = "Charter"
+	p.NoWheels = 8
+	p.Engines = 6
+	p.PType = "Commercial"
+	_ = PutPlane(p, gDB, testingdb)
 	planes, err := GetAllPlanes(gDB, testingdb)
 
 	if planes == nil {
@@ -121,7 +128,7 @@ func TestDeleteByID(t *testing.T) {
 	// err := DeletePlaneByID(7, gDB, testingdb)
 	// assert.Equal(t, true, err)
 
-	err := DeletePlaneByID(2, gDB, testingdb)
+	err := DeletePlaneByID(4, gDB, testingdb)
 	assert.Equal(t, false, err)
 }
 
