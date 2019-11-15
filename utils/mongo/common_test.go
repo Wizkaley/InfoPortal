@@ -33,7 +33,7 @@ func TestGetDatabaseSessionErr(t *testing.T) {
 	assert.Panics(t, func() { GetDataBaseSession("localhost:2712017") }, "--------")
 }
 
-func testCommon(t *testing.T) {
-	t.Run("TestGetDatabaseSession", TestGetDatabaseSession)
-	t.Run("TestGetDatabaseSessionErr", TestGetDatabaseSessionErr)
-}
+// func testCommon(t *testing.T) {
+// 	t.Run("TestGetDatabaseSession", TestGetDatabaseSession)
+// 	t.Run("TestGetDatabaseSessionErr", TestGetDatabaseSessionErr)
+// }
