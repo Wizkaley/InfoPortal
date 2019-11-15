@@ -114,7 +114,7 @@ func TestGetAllPlanes(t *testing.T) {
 	p.NoWheels = 8
 	p.Engines = 6
 	p.PType = "Commercial"
-	_, _ := PutPlane(p, gDB, testingdb)
+	_ = PutPlane(p, gDB, testingdb)
 	planes, err := GetAllPlanes(gDB, testingdb)
 
 	if planes == nil {
