@@ -12,8 +12,6 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-var mockMongo *mocks.MockMgoDBDAL
-
 func TestAddStudent(t *testing.T) {
 	ds, err := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
@@ -70,7 +68,7 @@ func TestRemoveStudentErr(t *testing.T) {
 func TestGetByName(t *testing.T) {
 	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
-	var n = "Pretty"
+	var n = "test"
 
 	stud, err := GetByName(n, ds, "testing")
 	if err != nil {
@@ -118,7 +116,7 @@ func TestUpdateStudent(t *testing.T) {
 	ds, err := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	tst := model.Student{
-		StudentName:  "ASAP",
+		StudentName:  "test",
 		StudentAge:   28,
 		StudentMarks: 99,
 	}

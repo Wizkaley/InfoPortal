@@ -10,8 +10,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var abc = false
-
 // PutPlane inserts a plane to database
 func PutPlane(p model.Plane, ds *mgo.Session, db string) (err error) {
 	session := ds

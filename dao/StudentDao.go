@@ -10,30 +10,25 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type testIndices struct {
-	Name     string
-	Index    mgo.Index
-	Keys     []string
-	Unique   bool
-	DropDups bool
-}
+//  
 
 // NewMongoDAL ...
 var NewMongoDAL = mongodal.NewMongoDBDAL
-var (
-	workIndices = []testIndices{
-		{
-			Name: "Marks",
-			Index: mgo.Index{
-				Key:        []string{"studentMarks"},
-				Unique:     false,
-				Background: true,
-				DropDups:   false,
-				Sparse:     false,
-			},
-		},
-	}
-)
+
+// var (
+// 	workIndices = []testIndices{
+// 		{
+// 			Name: "Marks",
+// 			Index: mgo.Index{
+// 				Key:        []string{"studentMarks"},
+// 				Unique:     false,
+// 				Background: true,
+// 				DropDups:   false,
+// 				Sparse:     false,
+// 			},
+// 		},
+// 	}
+// )
 
 // AddStudent ...
 func AddStudent(stud model.Student, ds *mgo.Session, db string) error {
