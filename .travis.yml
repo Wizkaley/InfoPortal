@@ -13,6 +13,8 @@ go:
 
 sudo: false
 
+services: mongodb
+
 git:
   depth: 1
 
@@ -23,6 +25,5 @@ notifications:
 
 script:
   - go vet ./...
-  - go test 
   - go build
   - go test ./... -v
