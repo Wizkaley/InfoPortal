@@ -1,10 +1,11 @@
-package mongo
+package utils
 
 import (
 	"gopkg.in/mgo.v2"
 )
 
-var mgoDial = mgo.Dial
+// MgoDial ...
+var MgoDial = mgo.Dial
 
 // GetDataBaseSession returns a session from the DB
 func GetDataBaseSession(uri string) (session *mgo.Session, err error) {

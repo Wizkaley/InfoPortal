@@ -1,7 +1,9 @@
 package controller
 
 import (
-	"RESTApp/utils/mongo"
+	"RESTApp/dao"
+	"RESTApp/model"
+	"RESTApp/utils"
 	"bytes"
 	"errors"
 	"net/http"
@@ -12,7 +14,7 @@ import (
 )
 
 func TestController(t *testing.T) {
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -20,7 +22,7 @@ func TestController(t *testing.T) {
 }
 
 func TestAddPlaneHandler(t *testing.T) {
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -66,7 +68,7 @@ func TestAddPlaneHandler(t *testing.T) {
 
 func TestRemovePlaneByName(t *testing.T) {
 
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -85,7 +87,7 @@ func TestRemovePlaneByName(t *testing.T) {
 }
 
 func TestGetPlanesHandler(t *testing.T) {
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -98,7 +100,7 @@ func TestGetPlanesHandler(t *testing.T) {
 
 func TestAddStudentHandelr(t *testing.T) {
 
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -128,7 +130,7 @@ func TestAddStudentHandelr(t *testing.T) {
 
 func TestGetStudentByNameHandler(t *testing.T) {
 	//TestGetStudent
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -144,7 +146,7 @@ func TestGetStudentByNameHandler(t *testing.T) {
 }
 
 func TestGetAllStudentsHandler(t *testing.T) {
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -159,7 +161,7 @@ func TestGetAllStudentsHandler(t *testing.T) {
 
 func TestDeleteStudentHandler(t *testing.T) {
 
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -178,10 +180,16 @@ func TestDeleteStudentHandler(t *testing.T) {
 }
 
 func TestUpdateStudentHandler(t *testing.T) {
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	sess, _ := utils.GetDataBaseSession("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
+	s := model.Student{
+		StudentName:  "Eshan",
+		StudentAge:   25,
+		StudentMarks: 88,
+	}
+	_ = dao.AddStudent(s, sess, "testing")
 
 	//Successfull Update
 	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)

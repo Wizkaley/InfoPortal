@@ -2,7 +2,7 @@ package dao
 
 import (
 	"RESTApp/model"
-	"RESTApp/utils/mongo"
+	"RESTApp/utils"
 	"errors"
 	"testing"
 
@@ -28,7 +28,7 @@ func TestPutPlane(t *testing.T) {
 		},
 	}
 
-	gDB, _ := mongo.GetDataBaseSession(testCases[0].url)
+	gDB, _ := utils.GetDataBaseSession(testCases[0].url)
 	defer gDB.Close()
 
 	plane := model.Plane{
@@ -55,7 +55,7 @@ func TestGetPlane(t *testing.T) {
 		},
 	}
 
-	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
 	p := GetPlane(tc[0].Name, gDB, testingdb)
 	assert.Equal(t, tc[0].Name, p.Name, "Expected %s but got %s", tc[0].Name, p.Name)
@@ -74,7 +74,7 @@ func TestUpdatePlane(t *testing.T) {
 		PType:    "Cargo",
 	}
 
-	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
 	defer gDB.Close()
 
@@ -90,14 +90,14 @@ func TestUpdatePlane(t *testing.T) {
 }
 
 func TestRemovePlane(t *testing.T) {
-	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 	defer gDB.Close()
 	err := DeletePlane("MIG19", gDB, testingdb)
 	assert.Equalf(t, true, err, "Expected %s but got %s", true, err)
 }
 
 func TestRemovePlaneErr(t *testing.T) {
-	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 	defer gDB.Close()
 
 	err := DeletePlane("name", gDB, testingdb)
@@ -105,7 +105,7 @@ func TestRemovePlaneErr(t *testing.T) {
 }
 
 func TestGetAllPlanes(t *testing.T) {
-	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 	defer gDB.Close()
 
 	var p model.Plane
@@ -123,7 +123,7 @@ func TestGetAllPlanes(t *testing.T) {
 }
 
 func TestDeleteByID(t *testing.T) {
-	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
 	// err := DeletePlaneByID(7, gDB, testingdb)
 	// assert.Equal(t, true, err)
@@ -133,7 +133,7 @@ func TestDeleteByID(t *testing.T) {
 }
 
 func TestDeleteByIDErr(t *testing.T) {
-	gDB, _ := mongo.GetDataBaseSession("localhost:27017")
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
 	err := DeletePlaneByID(1221321343, gDB, testingdb)
 	assert.Error(t, errors.New("not found"), err, "...")
