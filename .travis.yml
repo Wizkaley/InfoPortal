@@ -26,3 +26,4 @@ notifications:
 script:
   - go vet ./...
   - go build
+  - go test ./... -v
