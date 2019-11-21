@@ -1,6 +1,9 @@
 package mongo
 
 import (
+	"RESTApp/dao"
+	"RESTApp/model"
+	"RESTApp/utils/mongo"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,10 +11,15 @@ import (
 
 func TestGetDatabaseSession(t *testing.T) {
 
-	sess, _ := GetDataBaseSession("localhost:27017")
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
 
 	//s := *mgo.
-	_ = sess.DB("trial")
+	tst := model.Student{
+		StudentName:  "Pretty",
+		StudentAge:   56,
+		StudentMarks: 99,
+	}
+	dao.AddStudent(tst, sess, "trial")
 	dbName, _ := sess.DatabaseNames()
 
 	var name string
@@ -27,11 +35,11 @@ func TestGetDatabaseSession(t *testing.T) {
 
 func TestGetDatabaseSessionErr(t *testing.T) {
 
-	oldMgoDial := mgoDial
+	oldMgoDial := mongo.MgoDial
 
-	defer func() { mgoDial = oldMgoDial }()
+	defer func() { mongo.MgoDial = oldMgoDial }()
 
-	assert.Panics(t, func() { GetDataBaseSession("localhost:2712017") }, "--------")
+	assert.Panics(t, func() { mongo.GetDataBaseSession("localhost:2712017") }, "--------")
 }
 
 // func testCommon(t *testing.T) {
