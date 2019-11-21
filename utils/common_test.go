@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"RESTApp/dao"
-	"RESTApp/model"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -12,12 +10,6 @@ func TestGetDatabaseSession(t *testing.T) {
 	sess, _ := GetDataBaseSession("localhost:27017")
 
 	//s := *mgo.
-	tst := model.Student{
-		StudentName:  "Pretty",
-		StudentAge:   56,
-		StudentMarks: 99,
-	}
-	dao.AddStudent(tst, sess, "trial")
 	dbName, _ := sess.DatabaseNames()
 
 	var name string
