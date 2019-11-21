@@ -29,7 +29,7 @@ func GetPlane(name string, ds *mgo.Session, db string) (p model.Plane) {
 	session := ds
 	clone := session.Clone()
 	defer clone.Close()
-	clone.DB(db).C("planes").Find(bson.M{"name": name}).One(&p)
+	_ = clone.DB(db).C("planes").Find(bson.M{"name": name}).One(&p)
 	return
 }
 

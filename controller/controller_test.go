@@ -96,6 +96,36 @@ func TestGetPlanesHandler(t *testing.T) {
 	assert.HTTPErrorf(t, GetPlanesHandler(sess, "testing"), "PATCH", "http://localhost:8081/planes", nil, "")
 }
 
+func TestAddStudentHandelr(t *testing.T) {
+
+	sess, _ := mongo.GetDataBaseSession("localhost:27017")
+	defer sess.Close()
+	ser := httptest.NewServer(Handlers(sess, "testing"))
+	defer ser.Close()
+
+	// AddStudent success
+	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
+	req, _ := http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(json1))
+	req.Header.Set("Content-Type", "application/json")
+	res, _ := http.DefaultClient.Do(req)
+	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
+
+	// AddStudentErr Bad Request
+	assert.HTTPErrorf(t, AddStudent(sess, "testing"), "GET", "http://localhost:8081/student", nil, "")
+
+	// AddStudemtErr validation Error
+	emptyJSON := []byte(`{}`)
+	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(emptyJSON))
+	res, _ = http.DefaultClient.Do(req)
+	assert.Equalf(t, 422, res.StatusCode, "Expected %d but got %d", 404, res.StatusCode)
+
+	// AddStudentErr Decoding Error
+	errJSON := []byte(`{"}`)
+	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(errJSON))
+	res, _ = http.DefaultClient.Do(req)
+	assert.Equalf(t, 400, res.StatusCode, "Expected %d but got %d", 400, res.StatusCode)
+}
+
 func TestGetStudentByNameHandler(t *testing.T) {
 	//TestGetStudent
 	sess, _ := mongo.GetDataBaseSession("localhost:27017")
@@ -145,36 +175,6 @@ func TestDeleteStudentHandler(t *testing.T) {
 	// DeleteStudentErr Request Method
 	assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "GET", "http://localhost:8081/student/dhasdjhasj", nil, "")
 
-}
-
-func TestAddStudentHandelr(t *testing.T) {
-
-	sess, _ := mongo.GetDataBaseSession("localhost:27017")
-	defer sess.Close()
-	ser := httptest.NewServer(Handlers(sess, "testing"))
-	defer ser.Close()
-
-	// AddStudent success
-	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
-	req, _ := http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(json1))
-	req.Header.Set("Content-Type", "application/json")
-	res, _ := http.DefaultClient.Do(req)
-	assert.Equalf(t, 200, res.StatusCode, "Expected %d but got %d ", 200, res.StatusCode)
-
-	// AddStudentErr Bad Request
-	assert.HTTPErrorf(t, AddStudent(sess, "testing"), "GET", "http://localhost:8081/student", nil, "")
-
-	// AddStudemtErr validation Error
-	emptyJSON := []byte(`{}`)
-	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(emptyJSON))
-	res, _ = http.DefaultClient.Do(req)
-	assert.Equalf(t, 422, res.StatusCode, "Expected %d but got %d", 404, res.StatusCode)
-
-	// AddStudentErr Decoding Error
-	errJSON := []byte(`{"}`)
-	req, _ = http.NewRequest("POST", ser.URL+"/student", bytes.NewBuffer(errJSON))
-	res, _ = http.DefaultClient.Do(req)
-	assert.Equalf(t, 400, res.StatusCode, "Expected %d but got %d", 400, res.StatusCode)
 }
 
 func TestUpdateStudentHandler(t *testing.T) {

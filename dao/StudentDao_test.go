@@ -13,7 +13,7 @@ import (
 )
 
 func TestAddStudent(t *testing.T) {
-	ds, err := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	tst := model.Student{
 		StudentName:  "Pretty",
@@ -21,7 +21,7 @@ func TestAddStudent(t *testing.T) {
 		StudentMarks: 99,
 	}
 
-	err = AddStudent(tst, ds, testingdb)
+	err := AddStudent(tst, ds, testingdb)
 	if err != nil {
 		fmt.Printf("Error Was Expected : %v", err)
 	}
@@ -47,19 +47,19 @@ func TestAddStudentErr(t *testing.T) {
 
 func TestRemoveStudent(t *testing.T) {
 	var name = "Pretty"
-	ds, err := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
-	err = RemoveByName(name, ds, testingdb)
+	err := RemoveByName(name, ds, testingdb)
 	if err != nil {
 		t.Errorf("Error not Expected but : %v", err)
 	}
 }
 
 func TestRemoveStudentErr(t *testing.T) {
-	ds, err := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	var name = "sajdlas"
-	err = RemoveByName(name, ds, testingdb)
+	err := RemoveByName(name, ds, testingdb)
 	if err != nil {
 		fmt.Printf("Error Expected : %v", err)
 	}
@@ -90,7 +90,7 @@ func TestGetByName(t *testing.T) {
 }
 
 func TestGetByNameErr(t *testing.T) {
-	ds, err := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	var n = "jdfhsdjfhks"
 
@@ -102,10 +102,10 @@ func TestGetByNameErr(t *testing.T) {
 }
 
 func TestGetAll(t *testing.T) {
-	ds, err := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	var s []model.Student
-	s, err = GetAll(ds, testingdb)
+	s, err := GetAll(ds, testingdb)
 	if err != nil {
 		t.Errorf("Error Not Expected but : %v", err)
 	}
@@ -113,7 +113,7 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestUpdateStudent(t *testing.T) {
-	ds, err := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	tst := model.Student{
 		StudentName:  "test",
@@ -121,14 +121,14 @@ func TestUpdateStudent(t *testing.T) {
 		StudentMarks: 99,
 	}
 
-	err = UpdateStudent(tst, ds, testingdb)
+	err := UpdateStudent(tst, ds, testingdb)
 	if err != nil {
 		t.Errorf("Error Not Expected but : %v", err)
 	}
 }
 
 func TestUpdateStudentErr(t *testing.T) {
-	ds, err := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := mongo.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	tst := model.Student{
 		StudentName:  "as",
@@ -136,7 +136,7 @@ func TestUpdateStudentErr(t *testing.T) {
 		StudentMarks: 99,
 	}
 
-	err = UpdateStudent(tst, ds, testingdb)
+	err := UpdateStudent(tst, ds, testingdb)
 	if err != nil {
 		fmt.Printf("Error Not Expected but : %v", err)
 	}

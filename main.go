@@ -23,10 +23,11 @@ import (
 func main() {
 	//session, err := utils.Init("localhost:27017")
 	session, err := mongo.GetDataBaseSession("localhost:27017")
-	defer session.Close()
 	if err != nil {
 		log.Printf("Master DB Con Error : %v ", err)
 	}
+	defer session.Close()
+
 	fmt.Printf("Server Listening on //localhost:%d\n", 8081)
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "OPTIONS", "PUT"})
