@@ -11,6 +11,7 @@ func TestGetDatabaseSession(t *testing.T) {
 	sess, _ := GetDataBaseSession("localhost:27017")
 
 	//s := *mgo.
+	_ = sess.DB("trial").C("Student").Database
 	dbName, _ := sess.DatabaseNames()
 
 	var name string
