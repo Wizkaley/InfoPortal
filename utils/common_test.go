@@ -10,17 +10,9 @@ func TestGetDatabaseSession(t *testing.T) {
 	sess, _ := GetDataBaseSession("localhost:27017")
 
 	//s := *mgo.
-	dbName, _ := sess.DatabaseNames()
-
-	var name string
-	for _, val := range dbName {
-		if val == "trial" {
-			name = val
-		}
-		continue
+	if sess == nil {
+		t.Fatal("Expected Session but got Empty")
 	}
-
-	assert.Equalf(t, "trial", name, "Expected %s but got %s", "trial", name)
 }
 
 func TestGetDatabaseSessionErr(t *testing.T) {

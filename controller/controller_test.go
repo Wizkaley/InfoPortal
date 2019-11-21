@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"RESTApp/dao"
+	"RESTApp/model"
 	"RESTApp/utils"
 	"bytes"
 	"errors"
@@ -182,6 +184,12 @@ func TestUpdateStudentHandler(t *testing.T) {
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
+	s := model.Student{
+		StudentName:  "Eshan",
+		StudentAge:   25,
+		StudentMarks: 88,
+	}
+	_ = dao.AddStudent(s, sess, "testing")
 
 	//Successfull Update
 	json1 := []byte(`{"studentName":"Eshan", "studentAge":"24","studentMarks": "99"}`)
