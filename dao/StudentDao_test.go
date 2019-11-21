@@ -3,7 +3,7 @@ package dao
 import (
 	mocks "RESTApp/mocks"
 	"RESTApp/model"
-	mongo "RESTApp/utils/mongo"
+	mongo "RESTApp/utils"
 	"fmt"
 	"testing"
 
