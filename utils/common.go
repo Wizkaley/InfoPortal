@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 )
 
 // MgoDial ...

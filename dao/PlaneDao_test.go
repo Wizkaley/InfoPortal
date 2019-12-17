@@ -2,45 +2,58 @@ package dao
 
 import (
 	"RESTApp/model"
+	"RESTApp/mongodal"
 	"RESTApp/utils"
 	"errors"
 	"testing"
-
+	mocks "RESTApp/mocks"
 	"github.com/stretchr/testify/assert"
+	mgo "gopkg.in/mgo.v2"
 )
 
 //var gDB *mgo.Session
 
+var mockMongo *mocks.MockMgoDBDAL
 var testingdb = "testing"
 
-func TestPutPlane(t *testing.T) {
-	testCases := []struct {
-		url        string
-		db         string
-		collection string
-		err        error
-	}{
-		{
-			url:        "localhost:27017",
-			db:         "testing",
-			collection: "planes",
-			err:        nil,
-		},
-	}
+func getMockMongoDAL(database *mgo.Database) mongodal.MgoDBDAL {
+	return mockMongo
+}
 
-	gDB, _ := utils.GetDataBaseSession(testCases[0].url)
+// func TestPutPlane(t *testing.T) {
+// 	testCases := []struct {
+// 		url        string
+// 		db         string
+// 		collection string
+// 		err        error
+// 	}{
+// 		{
+// 			url:        "localhost:27017",
+// 			db:         "testing",
+// 			collection: "planes",
+// 			err:        nil,
+// 		},
+// 	}
+
+// 	gDB, _ := utils.GetDataBaseSession(testCases[0].url)
+// 	defer gDB.Close()
+
+// 	plane := model.Plane{
+// 		Pid:      7,
+// 		Name:     "MIG19",
+// 		NoWheels: 6,
+// 		Engines:  4,
+// 		PType:    "Attack",
+// 	}
+
+// 	err := PutPlane(plane, gDB, testingdb)
+// 	assert.Equal(t, testCases[0].err, err, "Expected %v but got %v", testCases[0].err, err)
+
+// }
+
+func testPutPlane(t *testing.T) {
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 	defer gDB.Close()
-
-	plane := model.Plane{
-		Pid:      7,
-		Name:     "MIG19",
-		NoWheels: 6,
-		Engines:  4,
-		PType:    "Attack",
-	}
-
-	err := PutPlane(plane, gDB, testingdb)
-	assert.Equal(t, testCases[0].err, err, "Expected %v but got %v", testCases[0].err, err)
 
 }
 

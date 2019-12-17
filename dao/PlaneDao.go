@@ -2,12 +2,16 @@ package dao
 
 import (
 	"RESTApp/model"
+	"RESTApp/mongodal"
 	"RESTApp/utils"
 	"log"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
+
+// NewMongoDBDAL ...
+var NewMongoDBDAL = mongodal.NewMongoDBDAL
 
 // PutPlane inserts a plane to database
 func PutPlane(p model.Plane, ds *mgo.Session, db string) (err error) {
@@ -16,7 +20,7 @@ func PutPlane(p model.Plane, ds *mgo.Session, db string) (err error) {
 	//err = clone.DB("trial").C("planes").Insert(p)
 	ds, err = utils.GetDataBaseSession("localhost:27017")
 	datab := ds.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err = dal.C("planes").Insert(p)
 	if err != nil {
 		log.Print("Could not insert", err)
@@ -31,7 +35,7 @@ func GetPlane(name string, ds *mgo.Session, db string) (p model.Plane) {
 	clone := session.Clone()
 	defer clone.Close()
 	datab := clone.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	_ = dal.C("planes").Find(bson.M{"name": name}).One(&p)
 	return
 }
@@ -42,7 +46,7 @@ func UpdatePlane(plane model.Plane, ds *mgo.Session, db string) (model.Plane, er
 	clone := session.Clone()
 	defer clone.Close()
 	datab := clone.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err := dal.C("plnes").Update(bson.M{"name": plane.Name}, plane)
 	return plane, err
 }
@@ -53,7 +57,7 @@ func DeletePlane(name string, ds *mgo.Session, db string) (stat bool) {
 	clone := session.Clone()
 	defer clone.Close()
 	datab := clone.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err := dal.C("planes").Remove(bson.M{"name": name})
 	if err != nil {
 		return false
@@ -66,7 +70,7 @@ func DeletePlaneByID(id int, ds *mgo.Session, db string) (stat bool) {
 	session := ds.Clone()
 	defer session.Close()
 	datab := session.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err := dal.C("planes").Remove(bson.M{"id": id})
 	if err != nil {
 		return false
@@ -80,7 +84,7 @@ func GetAllPlanes(ds *mgo.Session, db string) (planes []model.Plane, err error) 
 	clone := session.Clone()
 	defer clone.Close()
 	datab := clone.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err = dal.C("planes").Find(bson.M{}).All(&planes)
 	return
 }
