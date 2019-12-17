@@ -84,7 +84,7 @@ func TestUpdatePlane(t *testing.T) {
 	gP.NoWheels = pl.NoWheels
 	gP.Engines = pl.Engines
 	gP.PType = pl.PType
-	p, _ := UpdatePlane(gP, gDB)
+	p, _ := UpdatePlane(gP, gDB, "testing")
 	//fmt.Println("...............................updatePlane", p)
 	assert.Equal(t, p.Pid, pl.Pid, "Exepected %s but got %v", p.Pid, pl.Pid)
 }

@@ -1,4 +1,3 @@
-
 package dao
 
 import (
@@ -11,7 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//  
+//
 
 // NewMongoDAL ...
 var NewMongoDAL = mongodal.NewMongoDBDAL
@@ -51,7 +50,10 @@ func RemoveByName(s string, ds *mgo.Session, db string) error {
 
 	se := ds.Clone()
 	defer se.Close()
-	err := se.DB(db).C("Student").Remove(bson.M{"studentName": s})
+
+	datab := se.DB(db)
+	dal := NewMongoDAL(datab)
+	err := dal.C("Student").Remove(bson.M{"studentName": s})
 	if err != nil || err == mgo.ErrNotFound {
 		//log
 		return err
@@ -64,7 +66,9 @@ func GetByName(i string, ds *mgo.Session, db string) (stu model.Student, err err
 	fmt.Println(i)
 	s := ds.Clone()
 	defer s.Close()
-	err = NewMongoDAL(s.DB(db)).C("Student").Find(bson.M{"studentName": i}).One(&stu)
+	datab := s.DB(db)
+	dal := NewMongoDAL(datab)
+	err = dal.C("Student").Find(bson.M{"studentName": i}).One(&stu)
 	//err = db.DB("trial").C("Student").Find(bson.M{"studentName": i}).One(&stu)
 	return stu, err
 }
@@ -73,7 +77,9 @@ func GetByName(i string, ds *mgo.Session, db string) (stu model.Student, err err
 func GetAll(ds *mgo.Session, db string) (students []model.Student, err error) {
 	s := ds.Clone()
 	defer s.Close()
-	err = s.DB(db).C("Student").Find(bson.M{}).All(&students)
+	datab := s.DB(db)
+	dal := NewMongoDAL(datab)
+	err = dal.C("Student").Find(bson.M{}).All(&students)
 	return
 }
 
@@ -81,7 +87,9 @@ func GetAll(ds *mgo.Session, db string) (students []model.Student, err error) {
 func UpdateStudent(student model.Student, ds *mgo.Session, db string) (err error) {
 	s := ds.Clone()
 	defer s.Close()
-	err = s.DB(db).C("Student").Update(
+	datab := s.DB(db)
+	dal := NewMongoDAL(datab)
+	err = dal.C("Student").Update(
 		bson.M{"studentName": student.StudentName},
 		student)
 	return
