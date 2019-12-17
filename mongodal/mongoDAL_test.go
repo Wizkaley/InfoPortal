@@ -2,7 +2,7 @@ package mongodal_test
 
 import (
 	mocks "RESTApp/mocks"
-	"RESTApp/utils/"
+	"RESTApp/mongodal"
 	"testing"
 
 	"github.com/golang/mock/gomock"
