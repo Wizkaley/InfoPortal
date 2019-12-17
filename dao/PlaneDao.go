@@ -3,7 +3,6 @@ package dao
 import (
 	"RESTApp/model"
 	"RESTApp/utils"
-	"RESTApp/utils/mongodal"
 	"log"
 
 	mgo "gopkg.in/mgo.v2"
@@ -16,7 +15,9 @@ func PutPlane(p model.Plane, ds *mgo.Session, db string) (err error) {
 	clone := session.Clone()
 	//err = clone.DB("trial").C("planes").Insert(p)
 	ds, err = utils.GetDataBaseSession("localhost:27017")
-	err = mongodal.NewMongoDBDAL(ds.DB(db)).C("planes").Insert(p)
+	datab := ds.DB(db)
+	dal := NewMongoDAL(datab)
+	err = dal.C("planes").Insert(p)
 	if err != nil {
 		log.Print("Could not insert", err)
 	}
@@ -29,16 +30,20 @@ func GetPlane(name string, ds *mgo.Session, db string) (p model.Plane) {
 	session := ds
 	clone := session.Clone()
 	defer clone.Close()
-	_ = clone.DB(db).C("planes").Find(bson.M{"name": name}).One(&p)
+	datab := clone.DB(db)
+	dal := NewMongoDAL(datab)
+	_ = dal.C("planes").Find(bson.M{"name": name}).One(&p)
 	return
 }
 
 // UpdatePlane updates a plane whose name is given
-func UpdatePlane(plane model.Plane, ds *mgo.Session) (model.Plane, error) {
+func UpdatePlane(plane model.Plane, ds *mgo.Session, db string) (model.Plane, error) {
 	session := ds
 	clone := session.Clone()
 	defer clone.Close()
-	err := clone.DB("trial").C("plnes").Update(bson.M{"name": plane.Name}, plane)
+	datab := clone.DB(db)
+	dal := NewMongoDAL(datab)
+	err := dal.C("plnes").Update(bson.M{"name": plane.Name}, plane)
 	return plane, err
 }
 
@@ -47,7 +52,9 @@ func DeletePlane(name string, ds *mgo.Session, db string) (stat bool) {
 	session := ds
 	clone := session.Clone()
 	defer clone.Close()
-	err := clone.DB(db).C("planes").Remove(bson.M{"name": name})
+	datab := clone.DB(db)
+	dal := NewMongoDAL(datab)
+	err := dal.C("planes").Remove(bson.M{"name": name})
 	if err != nil {
 		return false
 	}
@@ -57,8 +64,10 @@ func DeletePlane(name string, ds *mgo.Session, db string) (stat bool) {
 // DeletePlaneByID ...
 func DeletePlaneByID(id int, ds *mgo.Session, db string) (stat bool) {
 	session := ds.Clone()
-	defer session.Clone()
-	err := session.DB(db).C("planes").Remove(bson.M{"id": id})
+	defer session.Close()
+	datab := session.DB(db)
+	dal := NewMongoDAL(datab)
+	err := dal.C("planes").Remove(bson.M{"id": id})
 	if err != nil {
 		return false
 	}
@@ -70,6 +79,8 @@ func GetAllPlanes(ds *mgo.Session, db string) (planes []model.Plane, err error) 
 	session := ds
 	clone := session.Clone()
 	defer clone.Close()
-	err = clone.DB(db).C("planes").Find(bson.M{}).All(&planes)
+	datab := clone.DB(db)
+	dal := NewMongoDAL(datab)
+	err = dal.C("planes").Find(bson.M{}).All(&planes)
 	return
 }
