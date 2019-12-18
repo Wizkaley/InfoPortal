@@ -2,7 +2,7 @@ package dao
 
 import (
 	"RESTApp/model"
-	"RESTApp/utils/mongodal"
+	"RESTApp/mongodal"
 	"fmt"
 	"log"
 

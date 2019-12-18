@@ -5,7 +5,7 @@
 package mongodal
 
 import (
-	mongodal "RESTApp/utils/mongodal"
+	mongodal "RESTApp/mongodal"
 	gomock "github.com/golang/mock/gomock"
 	mgo_v2 "gopkg.in/mgo.v2"
 	reflect "reflect"

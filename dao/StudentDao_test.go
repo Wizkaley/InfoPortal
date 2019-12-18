@@ -1,19 +1,16 @@
 package dao
 
 import (
-	mocks "RESTApp/mocks"
 	"RESTApp/model"
-	mongo "RESTApp/utils"
+	"RESTApp/utils"
 	"fmt"
 	"testing"
-
-	mgo "gopkg.in/mgo.v2"
 
 	"github.com/golang/mock/gomock"
 )
 
 func TestAddStudent(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	tst := model.Student{
 		StudentName:  "Pretty",
@@ -29,7 +26,7 @@ func TestAddStudent(t *testing.T) {
 }
 
 func TestAddStudentErr(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 
 	testStu := model.Student{
@@ -37,7 +34,7 @@ func TestAddStudentErr(t *testing.T) {
 		StudentAge:   24,
 		StudentMarks: 24,
 	}
-
+	
 	err := AddStudent(testStu, ds, testingdb)
 	if err != nil {
 		t.Errorf("Failed: %v", err)
@@ -47,7 +44,7 @@ func TestAddStudentErr(t *testing.T) {
 
 func TestRemoveStudent(t *testing.T) {
 	var name = "Pretty"
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	err := RemoveByName(name, ds, testingdb)
 	if err != nil {
@@ -56,7 +53,7 @@ func TestRemoveStudent(t *testing.T) {
 }
 
 func TestRemoveStudentErr(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	var name = "sajdlas"
 	err := RemoveByName(name, ds, testingdb)
@@ -66,7 +63,7 @@ func TestRemoveStudentErr(t *testing.T) {
 
 }
 func TestGetByName(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	var n = "test"
 
@@ -90,7 +87,7 @@ func TestGetByName(t *testing.T) {
 }
 
 func TestGetByNameErr(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	var n = "jdfhsdjfhks"
 
@@ -102,7 +99,7 @@ func TestGetByNameErr(t *testing.T) {
 }
 
 func TestGetAll(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	var s []model.Student
 	s, err := GetAll(ds, testingdb)
@@ -113,7 +110,7 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestUpdateStudent(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	tst := model.Student{
 		StudentName:  "test",
@@ -128,7 +125,7 @@ func TestUpdateStudent(t *testing.T) {
 }
 
 func TestUpdateStudentErr(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	tst := model.Student{
 		StudentName:  "as",
@@ -143,11 +140,11 @@ func TestUpdateStudentErr(t *testing.T) {
 }
 
 func TestRemoveByNameErr(t *testing.T) {
-	ds, _ := mongo.GetDataBaseSession("localhost:27017")
+	ds, _ := utils.GetDataBaseSession("localhost:27017")
 	defer ds.Close()
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
-	coll := mocks.NewMockMgoCollectionDAL(mockCtrl)
-	coll.EXPECT().Remove(gomock.Any()).Return(mgo.ErrNotFound).Times(1)
-	coll.Remove(gomock.Any())
+	//coll := mockMongo.NewMockMgoCollectionDAL(mockCtrl)
+	//coll.EXPECT().Remove(gomock.Any()).Return(mgo.ErrNotFound).Times(1)
+	//coll.Remove(gomock.Any())
 }

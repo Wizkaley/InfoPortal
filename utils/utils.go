@@ -1,9 +1,9 @@
 package utils
 
 import (
-	"fmt"
+	"log"
 
-	"gopkg.in/mgo.v2"
+	mgo "gopkg.in/mgo.v2"
 )
 
 // DataStore Struct to handle mongo connectivity
@@ -21,7 +21,7 @@ func Init(path string) (sess *mgo.Session, err error) {
 	defer func() {
 		r := recover()
 		if r != nil {
-			fmt.Println("Error while getting session : no reachable servers")
+			log.Println("Error while getting session : no reachable servers")
 		}
 	}()
 	// ses = ensureInd(sess)
