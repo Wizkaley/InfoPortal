@@ -3,7 +3,6 @@ package dao
 import (
 	"RESTApp/model"
 	"RESTApp/mongodal"
-	"RESTApp/utils"
 	"log"
 
 	mgo "gopkg.in/mgo.v2"
@@ -14,13 +13,11 @@ import (
 var NewMongoDBDAL = mongodal.NewMongoDBDAL
 
 // PutPlane inserts a plane to database
-func PutPlane(p model.Plane, ds *mgo.Session, db string) (err error) {
+func PutPlane(p model.Plane, ds *mgo.Session, dbs string) (err error) {
 	session := ds
 	clone := session.Clone()
-	//err = clone.DB("trial").C("planes").Insert(p)
-	ds, err = utils.GetDataBaseSession("localhost:27017")
-	datab := ds.DB(db)
-	dal := NewMongoDBDAL(datab)
+	db := clone.DB(dbs)
+	dal := NewMongoDBDAL(db)
 	err = dal.C("planes").Insert(p)
 	if err != nil {
 		log.Print("Could not insert", err)
@@ -30,13 +27,18 @@ func PutPlane(p model.Plane, ds *mgo.Session, db string) (err error) {
 }
 
 // GetPlane returns a given plane from the database
-func GetPlane(name string, ds *mgo.Session, db string) (p model.Plane) {
+func GetPlane(name string, ds *mgo.Session, dbs string) (p model.Plane, err error) {
 	session := ds
 	clone := session.Clone()
-	defer clone.Close()
-	datab := clone.DB(db)
-	dal := NewMongoDBDAL(datab)
-	_ = dal.C("planes").Find(bson.M{"name": name}).One(&p)
+
+	db := clone.DB(dbs)
+	dal := NewMongoDBDAL(db)
+	planes := dal.C("planes")
+	err = planes.Find(bson.M{"name": name}).One(&p)
+	if err != nil {
+		log.Println("Could not get a Record with that name!")
+	}
+	// defer clone.Close()
 	return
 }
 

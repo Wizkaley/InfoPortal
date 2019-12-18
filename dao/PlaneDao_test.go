@@ -1,14 +1,17 @@
 package dao
 
 import (
+	mocks "RESTApp/mocks"
 	"RESTApp/model"
 	"RESTApp/mongodal"
 	"RESTApp/utils"
 	"errors"
 	"testing"
-	mocks "RESTApp/mocks"
+
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 //var gDB *mgo.Session
@@ -20,65 +23,87 @@ func getMockMongoDAL(database *mgo.Database) mongodal.MgoDBDAL {
 	return mockMongo
 }
 
-// func TestPutPlane(t *testing.T) {
-// 	testCases := []struct {
-// 		url        string
-// 		db         string
-// 		collection string
-// 		err        error
-// 	}{
-// 		{
-// 			url:        "localhost:27017",
-// 			db:         "testing",
-// 			collection: "planes",
-// 			err:        nil,
-// 		},
-// 	}
-
-// 	gDB, _ := utils.GetDataBaseSession(testCases[0].url)
-// 	defer gDB.Close()
-
-// 	plane := model.Plane{
-// 		Pid:      7,
-// 		Name:     "MIG19",
-// 		NoWheels: 6,
-// 		Engines:  4,
-// 		PType:    "Attack",
-// 	}
-
-// 	err := PutPlane(plane, gDB, testingdb)
-// 	assert.Equal(t, testCases[0].err, err, "Expected %v but got %v", testCases[0].err, err)
-
-// }
-
-func testPutPlane(t *testing.T) {
+func TestPutPlane(t *testing.T) {
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
-	defer gDB.Close()
 
+	plane := model.Plane{
+		Pid:      7,
+		Name:     "MIG19",
+		NoWheels: 6,
+		Engines:  4,
+		PType:    "Attack",
+	}
+
+	NewMongoDBDAL = getMockMongoDAL
+
+	mockCtrl := gomock.NewController(t)
+	mockMongo = mocks.NewMockMgoDBDAL(mockCtrl)
+
+	// Error Condition Check
+	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockMongo.EXPECT().C("planes").Return(mockPColl).Times(2)
+	err := errors.New("insert error")
+
+	mockPColl.EXPECT().Insert(gomock.Any()).Return(err).Times(1)
+
+	plane = model.Plane{
+		Pid:      7,
+		Name:     "MIG19",
+		NoWheels: 6,
+		Engines:  4,
+		PType:    "Attack",
+	}
+
+	PutPlane(plane, gDB, "testing")
+
+	// Success Condition Check
+	mockPColl.EXPECT().Insert(gomock.Any()).Return(nil).Times(1)
+
+	PutPlane(plane, gDB, "testing")
+
+	// Cleanup
+	gDB.Close()
+	mockCtrl.Finish()
+	NewMongoDBDAL = mongodal.NewMongoDBDAL
 }
 
 func TestGetPlane(t *testing.T) {
-	tc := []struct {
-		Name string
-		err  error
-	}{
-		{
-			Name: "MIG19",
-			err:  nil,
-		},
-	}
-
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
-	p := GetPlane(tc[0].Name, gDB, testingdb)
-	assert.Equal(t, tc[0].Name, p.Name, "Expected %s but got %s", tc[0].Name, p.Name)
+	mockCtrl := gomock.NewController(t)
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
+	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
 
-	// p1 := GetPlane(tc[1].Name, gDB)
-	// assert.Equal
-	defer gDB.Close()
+	mockFOQry := mocks.NewMockMgoQueryDAL(mockCtrl)
+
+	// Error Condition Check
+	err := errors.New("Find Error")
+	p := model.Plane{}
+	mockMongo.EXPECT().C("planes").Return(mockPColl).AnyTimes()
+	mockPColl.EXPECT().Find(gomock.Any()).Return(mockFOQry).AnyTimes()
+	mockFOQry.EXPECT().One(&p).Return(err).AnyTimes()
+
+	GetPlane("MIG-21", gDB, "testing")
+
+	// Success Condition Check
+	mockFOQry.EXPECT().One(&p).Return(nil).AnyTimes()
+	mockCtrl.Finish()
+
+	GetPlane("MIG-21", gDB, "testing")
+	gDB.Close()
+
 }
 
 func TestUpdatePlane(t *testing.T) {
+
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
+	defer gDB.Close()
+
+	//var p model.Plane
+	mockCtrl := gomock.NewController(t)
+	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockPColl.EXPECT().Find(gomock.Any()).AnyTimes()
+	err := errors.New("update error")
 	pl := model.Plane{
 		Pid:      8,
 		Name:     "Boeing 777",
@@ -87,54 +112,51 @@ func TestUpdatePlane(t *testing.T) {
 		PType:    "Cargo",
 	}
 
-	gDB, _ := utils.GetDataBaseSession("localhost:27017")
+	mockPColl.EXPECT().Update(bson.M{"name": pl.Name}, pl).Return(err).AnyTimes()
+	UpdatePlane(pl, gDB, "testing")
 
-	defer gDB.Close()
-
-	gP := GetPlane(pl.Name, gDB, testingdb)
-	//fmt.Println("...............................getPlane", gP)
-	gP.Pid = pl.Pid
-	gP.NoWheels = pl.NoWheels
-	gP.Engines = pl.Engines
-	gP.PType = pl.PType
-	p, _ := UpdatePlane(gP, gDB, "testing")
-	//fmt.Println("...............................updatePlane", p)
-	assert.Equal(t, p.Pid, pl.Pid, "Exepected %s but got %v", p.Pid, pl.Pid)
+	mockPColl.EXPECT().Update(bson.M{"name": pl.Name}, pl).Return(nil).AnyTimes()
+	UpdatePlane(pl, gDB, "testing")
+	mockCtrl.Finish()
 }
 
 func TestRemovePlane(t *testing.T) {
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 	defer gDB.Close()
-	err := DeletePlane("MIG19", gDB, testingdb)
-	assert.Equalf(t, true, err, "Expected %s but got %s", true, err)
-}
 
-func TestRemovePlaneErr(t *testing.T) {
-	gDB, _ := utils.GetDataBaseSession("localhost:27017")
-	defer gDB.Close()
+	mockCtrl := gomock.NewController(t)
+	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
 
-	err := DeletePlane("name", gDB, testingdb)
-	assert.Error(t, errors.New("not found"), err, "..")
+	err := errors.New("remove error")
+	mockPColl.EXPECT().Find(gomock.Any()).AnyTimes()
+	mockPColl.EXPECT().Remove(gomock.Any()).Return(err).AnyTimes()
+
+	DeletePlane("MIG19", gDB, testingdb)
+
+	mockPColl.EXPECT().Remove(gomock.Any()).Return(nil).AnyTimes()
+	DeletePlane("MIG19", gDB, testingdb)
+	mockCtrl.Finish()
 }
 
 func TestGetAllPlanes(t *testing.T) {
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 	defer gDB.Close()
 
-	var p model.Plane
-	p.Pid = 2
-	p.Name = "Charter"
-	p.NoWheels = 8
-	p.Engines = 6
-	p.PType = "Commercial"
-	_ = PutPlane(p, gDB, testingdb)
-	planes, err := GetAllPlanes(gDB, testingdb)
+	mockCtrl := gomock.NewController(t)
+	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
 
-	if planes == nil {
-		t.Errorf("Failed to Get All Planes: %v", err)
-	}
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
+	mockAllQry := mocks.NewMockMgoQueryDAL(mockCtrl)
+	err := errors.New("Get All error")
+	mockMongo.EXPECT().C(gomock.Any).Return(mockPColl).Times(1)
+	mockPColl.EXPECT().Find(gomock.Any()).Return(mockAllQry).Times(2)
+	mockAllQry.EXPECT().All(gomock.Any()).Return(err).Times(1)
+
+	// var pl model.Plane
+	GetAllPlanes(gDB, "testing")
+	mockAllQry.EXPECT().All(gomock.Any()).Return(nil).Times(1)
+	GetAllPlanes(gDB, "testing")
 }
-
 func TestDeleteByID(t *testing.T) {
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
