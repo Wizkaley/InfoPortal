@@ -23,6 +23,6 @@ notifications:
   email: false
 
 script:
-  - go vet ./...
-  - go build
-  - go test ./... -v
+  - go vet ./... 
+  - go build -race
+  - go test ./... -race -v
