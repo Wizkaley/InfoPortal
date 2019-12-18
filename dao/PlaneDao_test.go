@@ -26,14 +26,6 @@ func getMockMongoDAL(database *mgo.Database) mongodal.MgoDBDAL {
 func TestPutPlane(t *testing.T) {
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
-	plane := model.Plane{
-		Pid:      7,
-		Name:     "MIG19",
-		NoWheels: 6,
-		Engines:  4,
-		PType:    "Attack",
-	}
-
 	NewMongoDBDAL = getMockMongoDAL
 
 	mockCtrl := gomock.NewController(t)
@@ -46,21 +38,20 @@ func TestPutPlane(t *testing.T) {
 
 	mockPColl.EXPECT().Insert(gomock.Any()).Return(err).Times(1)
 
-	plane = model.Plane{
-		Pid:      7,
-		Name:     "MIG19",
-		NoWheels: 6,
-		Engines:  4,
-		PType:    "Attack",
-	}
+	plane := model.Plane{}
 
-	PutPlane(plane, gDB, "testing")
+	err = PutPlane(plane, gDB, "testing")
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 
 	// Success Condition Check
 	mockPColl.EXPECT().Insert(gomock.Any()).Return(nil).Times(1)
 
 	PutPlane(plane, gDB, "testing")
-
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 	// Cleanup
 	gDB.Close()
 	mockCtrl.Finish()
@@ -83,13 +74,19 @@ func TestGetPlane(t *testing.T) {
 	mockPColl.EXPECT().Find(gomock.Any()).Return(mockFOQry).AnyTimes()
 	mockFOQry.EXPECT().One(&p).Return(err).AnyTimes()
 
-	GetPlane("MIG-21", gDB, "testing")
+	_, err = GetPlane("MIG-21", gDB, "testing")
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 
 	// Success Condition Check
 	mockFOQry.EXPECT().One(&p).Return(nil).AnyTimes()
 	mockCtrl.Finish()
 
-	GetPlane("MIG-21", gDB, "testing")
+	_, err = GetPlane("MIG-21", gDB, "testing")
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 	gDB.Close()
 
 }
@@ -113,10 +110,16 @@ func TestUpdatePlane(t *testing.T) {
 	}
 
 	mockPColl.EXPECT().Update(bson.M{"name": pl.Name}, pl).Return(err).AnyTimes()
-	UpdatePlane(pl, gDB, "testing")
+	_, err = UpdatePlane(pl, gDB, "testing")
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 
 	mockPColl.EXPECT().Update(bson.M{"name": pl.Name}, pl).Return(nil).AnyTimes()
-	UpdatePlane(pl, gDB, "testing")
+	_, err = UpdatePlane(pl, gDB, "testing")
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 	mockCtrl.Finish()
 }
 
@@ -153,9 +156,15 @@ func TestGetAllPlanes(t *testing.T) {
 	mockAllQry.EXPECT().All(gomock.Any()).Return(err).Times(1)
 
 	// var pl model.Plane
-	GetAllPlanes(gDB, "testing")
+	_, err = GetAllPlanes(gDB, "testing")
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 	mockAllQry.EXPECT().All(gomock.Any()).Return(nil).Times(1)
-	GetAllPlanes(gDB, "testing")
+	_, err = GetAllPlanes(gDB, "testing")
+	if err != nil {
+		t.Errorf("Test Failed :: %v", err)
+	}
 }
 func TestDeleteByID(t *testing.T) {
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
