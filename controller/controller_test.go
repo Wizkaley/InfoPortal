@@ -136,10 +136,13 @@ func TestGetStudentByNameHandler(t *testing.T) {
 	defer ser.Close()
 	req, _ := http.NewRequest("GET", ser.URL+"/student/Eshan", nil)
 	res, _ := http.DefaultClient.Do(req)
-	assert.Equal(t, 200, res.StatusCode, "Expected %d but got %", 200, res.StatusCode)
+	assert.Equal(t, 200, res.StatusCode, "Expected %d but got %v", 200, res.StatusCode)
 	//assert.HTTPSuccessf(t, GetStudentByName(sess, "testing"), "GET", "http://localhost:8081/student/test", nil, "")
 	//TestGetStudentErrs
-	assert.HTTPErrorf(t, GetStudentByName(sess, "testing"), "GET", "http://localhost:8081/student/jdfhsdjfhks", nil, "")
+	req, _ = http.NewRequest("GET", ser.URL+"/student/jdfhsdjfhks", nil)
+	res, _ = http.DefaultClient.Do(req)
+	//assert.HTTPErrorf(t, GetStudentByName(sess, "testing"), "GET", "http://localhost:8081/student/jdfhsdjfhks", nil, "")
+	assert.Equal(t, 404, res.StatusCode, "Expected %d but got %v", 404, res.StatusCode)
 
 	// TesGetStudentErr PATCH method
 	assert.HTTPErrorf(t, GetStudentByName(sess, "testing"), "PATCH", "http://localhost:8081/student/jdfhsdjfhks", nil, "")
@@ -173,7 +176,10 @@ func TestDeleteStudentHandler(t *testing.T) {
 	assert.Equal(t, 200, res.StatusCode, "")
 
 	// DeleteStudentErr Invalid Input
-	assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "DELETE", "http://localhost:8081/student/dhasdjhasj", nil, "")
+	req, _ = http.NewRequest("DELETE", ser.URL+"/student/dhasdjhasj", nil)
+	res, _ = http.DefaultClient.Do(req)
+	//assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "DELETE", "http://localhost:8081/student/dhasdjhasj", nil, "")
+	assert.Equal(t, 404, res.StatusCode, "")
 	// DeleteStudentErr Request Method
 	assert.HTTPErrorf(t, DeleteStudent(sess, "testing"), "GET", "http://localhost:8081/student/dhasdjhasj", nil, "")
 
