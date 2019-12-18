@@ -1,150 +1,122 @@
 package dao
 
 import (
+	mocks "RESTApp/mocks"
 	"RESTApp/model"
 	"RESTApp/utils"
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 )
 
 func TestAddStudent(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	tst := model.Student{
-		StudentName:  "Pretty",
-		StudentAge:   56,
-		StudentMarks: 99,
-	}
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
-	err := AddStudent(tst, ds, testingdb)
-	if err != nil {
-		fmt.Printf("Error Was Expected : %v", err)
-	}
+	mockCtrl := gomock.NewController(t)
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
 
-}
+	mockSColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockMongo.EXPECT().C("Students").Return(mockSColl).AnyTimes()
+	err := errors.New("Insert Error")
+	mockSColl.EXPECT().Insert(model.Student{}).Return(err).AnyTimes()
 
-func TestAddStudentErr(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
+	s := model.Student{}
+	_ = AddStudent(s, gDB, "testing")
 
-	testStu := model.Student{
-		StudentName:  "test",
-		StudentAge:   24,
-		StudentMarks: 24,
-	}
-	
-	err := AddStudent(testStu, ds, testingdb)
-	if err != nil {
-		t.Errorf("Failed: %v", err)
-	}
-	//NewMongoDAL = mockMongo
+	// mockSColl.EXPECT().Insert(gomock.Any()).Return(nil).AnyTimes()
+	// _ = AddStudent(s, gDB, "testing")
+
+	mockCtrl.Finish()
+	gDB.Close()
+
 }
 
 func TestRemoveStudent(t *testing.T) {
-	var name = "Pretty"
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	err := RemoveByName(name, ds, testingdb)
-	if err != nil {
-		t.Errorf("Error not Expected but : %v", err)
-	}
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
+
+	mockCtrl := gomock.NewController(t)
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
+
+	mockSColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	err := errors.New("Remove Error")
+	mockMongo.EXPECT().C("Students").Return(mockSColl).AnyTimes()
+	mockSColl.EXPECT().Remove(gomock.Any()).Return(err).AnyTimes()
+
+	RemoveByName("test", gDB, "testing")
+
+	mockSColl.EXPECT().Remove(gomock.Any()).Return(nil).AnyTimes()
+
+	RemoveByName("test", gDB, "testing")
+
+	mockCtrl.Finish()
 }
 
-func TestRemoveStudentErr(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	var name = "sajdlas"
-	err := RemoveByName(name, ds, testingdb)
-	if err != nil {
-		fmt.Printf("Error Expected : %v", err)
-	}
-
-}
 func TestGetByName(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	var n = "test"
 
-	stud, err := GetByName(n, ds, "testing")
-	if err != nil {
-		t.Errorf("Error Not Expected but : %v", err)
-	}
-	fmt.Println(stud)
-	//------------------------------------------
-	// mockCtrl := gomock.NewController(t)
-	// defer mockCtrl.Finish()
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
-	// db := mocks.NewMockMgoDBDAL(mockCtrl)
-	// coll := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockCtrl := gomock.NewController(t)
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
 
-	// db.EXPECT().C("testing").Return(coll).Times(1)
+	mockSColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockMongo.EXPECT().C("Students").Return(mockSColl).AnyTimes()
 
-	// coll.EXPECT().Find("ASAP").Return(nil).Times(1)
+	mockFOQry := mocks.NewMockMgoQueryDAL(mockCtrl)
+	mockSColl.EXPECT().Find(gomock.Any()).Return(mockFOQry).AnyTimes()
 
-	// _, _ = GetByName("ASAP", ds, testingdb)
-}
+	err := errors.New("Find One Mock Error")
+	mockFOQry.EXPECT().One(gomock.Any()).Return(err).AnyTimes()
 
-func TestGetByNameErr(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	var n = "jdfhsdjfhks"
+	_, _ = GetByName("ASAP", gDB, testingdb)
 
-	stud, err := GetByName(n, ds, testingdb)
-	if err != nil {
-		fmt.Printf("Error Expected : %v", err)
-	}
-	fmt.Println(stud)
+	mockFOQry.EXPECT().One(gomock.Any()).Return(nil).AnyTimes()
+
+	_, _ = GetByName("ASAP", gDB, testingdb)
+
+	mockCtrl.Finish()
 }
 
 func TestGetAll(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	var s []model.Student
-	s, err := GetAll(ds, testingdb)
-	if err != nil {
-		t.Errorf("Error Not Expected but : %v", err)
-	}
-	fmt.Println(s)
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
+
+	mockCtrl := gomock.NewController(t)
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
+
+	mockSColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockMongo.EXPECT().C("Students").Return(mockSColl).AnyTimes()
+
+	mockFOQry := mocks.NewMockMgoQueryDAL(mockCtrl)
+	mockSColl.EXPECT().Find(gomock.Any()).Return(mockFOQry).AnyTimes()
+
+	err := errors.New("Find One Mock Error")
+	mockFOQry.EXPECT().All(gomock.Any()).Return(err).AnyTimes()
+
+	_, _ = GetAll(gDB, "testing")
+
+	mockFOQry.EXPECT().All(gomock.Any()).Return(nil).AnyTimes()
+
+	_, _ = GetAll(gDB, "testing")
+	mockCtrl.Finish()
 }
 
 func TestUpdateStudent(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	tst := model.Student{
-		StudentName:  "test",
-		StudentAge:   28,
-		StudentMarks: 99,
-	}
+	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
-	err := UpdateStudent(tst, ds, testingdb)
-	if err != nil {
-		t.Errorf("Error Not Expected but : %v", err)
-	}
-}
-
-func TestUpdateStudentErr(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
-	tst := model.Student{
-		StudentName:  "as",
-		StudentAge:   28,
-		StudentMarks: 99,
-	}
-
-	err := UpdateStudent(tst, ds, testingdb)
-	if err != nil {
-		fmt.Printf("Error Not Expected but : %v", err)
-	}
-}
-
-func TestRemoveByNameErr(t *testing.T) {
-	ds, _ := utils.GetDataBaseSession("localhost:27017")
-	defer ds.Close()
 	mockCtrl := gomock.NewController(t)
-	defer mockCtrl.Finish()
-	//coll := mockMongo.NewMockMgoCollectionDAL(mockCtrl)
-	//coll.EXPECT().Remove(gomock.Any()).Return(mgo.ErrNotFound).Times(1)
-	//coll.Remove(gomock.Any())
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
+
+	mockSColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockMongo.EXPECT().C("Students").Return(mockSColl).AnyTimes()
+
+	err := errors.New("Update Mock Error")
+	mockSColl.EXPECT().Update(gomock.Any(), gomock.Any()).Return(err).AnyTimes()
+
+	var s model.Student
+	_ = UpdateStudent(s, gDB, "testing")
+
+	mockSColl.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
+	_ = UpdateStudent(s, gDB, "testing")
+
+	mockCtrl.Finish()
 }

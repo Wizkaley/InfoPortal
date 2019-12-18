@@ -52,10 +52,9 @@ func RemoveByName(s string, ds *mgo.Session, db string) error {
 	defer se.Close()
 
 	datab := se.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err := dal.C("Student").Remove(bson.M{"studentName": s})
 	if err != nil || err == mgo.ErrNotFound {
-		//log
 		return err
 	}
 	return nil
@@ -67,9 +66,8 @@ func GetByName(i string, ds *mgo.Session, db string) (stu model.Student, err err
 	s := ds.Clone()
 	defer s.Close()
 	datab := s.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err = dal.C("Student").Find(bson.M{"studentName": i}).One(&stu)
-	//err = db.DB("trial").C("Student").Find(bson.M{"studentName": i}).One(&stu)
 	return stu, err
 }
 
@@ -78,7 +76,7 @@ func GetAll(ds *mgo.Session, db string) (students []model.Student, err error) {
 	s := ds.Clone()
 	defer s.Close()
 	datab := s.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err = dal.C("Student").Find(bson.M{}).All(&students)
 	return
 }
@@ -88,7 +86,7 @@ func UpdateStudent(student model.Student, ds *mgo.Session, db string) (err error
 	s := ds.Clone()
 	defer s.Close()
 	datab := s.DB(db)
-	dal := NewMongoDAL(datab)
+	dal := NewMongoDBDAL(datab)
 	err = dal.C("Student").Update(
 		bson.M{"studentName": student.StudentName},
 		student)
