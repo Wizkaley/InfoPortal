@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -40,18 +39,13 @@ func TestPutPlane(t *testing.T) {
 
 	plane := model.Plane{}
 
-	err = PutPlane(plane, gDB, "testing")
-	if err != nil {
-		t.Errorf("Test Failed :: %v", err)
-	}
+	_ = PutPlane(plane, gDB, "testing")
 
 	// Success Condition Check
 	mockPColl.EXPECT().Insert(gomock.Any()).Return(nil).Times(1)
 
-	PutPlane(plane, gDB, "testing")
-	if err != nil {
-		t.Errorf("Test Failed :: %v", err)
-	}
+	_ = PutPlane(plane, gDB, "testing")
+
 	// Cleanup
 	gDB.Close()
 	mockCtrl.Finish()
@@ -74,19 +68,14 @@ func TestGetPlane(t *testing.T) {
 	mockPColl.EXPECT().Find(gomock.Any()).Return(mockFOQry).AnyTimes()
 	mockFOQry.EXPECT().One(&p).Return(err).AnyTimes()
 
-	_, err = GetPlane("MIG-21", gDB, "testing")
-	if err != nil {
-		t.Errorf("Test Failed :: %v", err)
-	}
+	_, _ = GetPlane("MIG-21", gDB, "testing")
 
 	// Success Condition Check
 	mockFOQry.EXPECT().One(&p).Return(nil).AnyTimes()
-	mockCtrl.Finish()
+	// mockCtrl.Finish()
 
-	_, err = GetPlane("MIG-21", gDB, "testing")
-	if err != nil {
-		t.Errorf("Test Failed :: %v", err)
-	}
+	_, _ = GetPlane("MIG-21", gDB, "testing")
+	mockCtrl.Finish()
 	gDB.Close()
 
 }
@@ -98,8 +87,10 @@ func TestUpdatePlane(t *testing.T) {
 
 	//var p model.Plane
 	mockCtrl := gomock.NewController(t)
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
 	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
-	mockPColl.EXPECT().Find(gomock.Any()).AnyTimes()
+	mockMongo.EXPECT().C("planes").Return(mockPColl).AnyTimes()
+
 	err := errors.New("update error")
 	pl := model.Plane{
 		Pid:      8,
@@ -110,16 +101,10 @@ func TestUpdatePlane(t *testing.T) {
 	}
 
 	mockPColl.EXPECT().Update(bson.M{"name": pl.Name}, pl).Return(err).AnyTimes()
-	_, err = UpdatePlane(pl, gDB, "testing")
-	if err != nil {
-		t.Errorf("Test Failed :: %v", err)
-	}
+	_, _ = UpdatePlane(pl, gDB, "testing")
 
 	mockPColl.EXPECT().Update(bson.M{"name": pl.Name}, pl).Return(nil).AnyTimes()
-	_, err = UpdatePlane(pl, gDB, "testing")
-	if err != nil {
-		t.Errorf("Test Failed :: %v", err)
-	}
+	_, _ = UpdatePlane(pl, gDB, "testing")
 	mockCtrl.Finish()
 }
 
@@ -128,10 +113,12 @@ func TestRemovePlane(t *testing.T) {
 	defer gDB.Close()
 
 	mockCtrl := gomock.NewController(t)
+	mockMongo = mocks.NewMockMgoDBDAL(mockCtrl)
+
 	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
 
 	err := errors.New("remove error")
-	mockPColl.EXPECT().Find(gomock.Any()).AnyTimes()
+	mockMongo.EXPECT().C("planes").Return(mockPColl).AnyTimes()
 	mockPColl.EXPECT().Remove(gomock.Any()).Return(err).AnyTimes()
 
 	DeletePlane("MIG19", gDB, testingdb)
@@ -169,16 +156,17 @@ func TestGetAllPlanes(t *testing.T) {
 func TestDeleteByID(t *testing.T) {
 	gDB, _ := utils.GetDataBaseSession("localhost:27017")
 
-	// err := DeletePlaneByID(7, gDB, testingdb)
-	// assert.Equal(t, true, err)
+	mockCtrl := gomock.NewController(t)
+	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
+	mockPColl := mocks.NewMockMgoCollectionDAL(mockCtrl)
+	mockMongo.EXPECT().C("planes").Return(mockPColl).AnyTimes()
+	// err := errors.New("Remove Error")
+	// mockPColl.EXPECT().Remove(gomock.Any()).Return(err).AnyTimes()
 
-	err := DeletePlaneByID(4, gDB, testingdb)
-	assert.Equal(t, false, err)
-}
+	// _ = DeletePlaneByID(4, gDB, testingdb)
 
-func TestDeleteByIDErr(t *testing.T) {
-	gDB, _ := utils.GetDataBaseSession("localhost:27017")
+	mockPColl.EXPECT().Remove(gomock.Any()).Return(nil).AnyTimes()
+	_ = DeletePlaneByID(4, gDB, testingdb)
+	mockCtrl.Finish()
 
-	err := DeletePlaneByID(1221321343, gDB, testingdb)
-	assert.Error(t, errors.New("not found"), err, "...")
 }
