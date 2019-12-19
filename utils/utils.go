@@ -25,14 +25,14 @@ func InitConfig() {
 	viper.AutomaticEnv()
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("..")
-	viper.ReadInConfig()
-	viper.Unmarshal(&Config)
+	_ = viper.ReadInConfig()
+	_ = viper.Unmarshal(&Config)
 
 	log.Printf("\n\n CONFIGURATION\n")
 	log.Printf("\n======================================================================\n")
 	displayConfig := Config
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "    ")
-	enc.Encode(displayConfig)
+	_ = enc.Encode(displayConfig)
 	log.Printf("\n======================================================================\n")
 }
