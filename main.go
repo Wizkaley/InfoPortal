@@ -14,7 +14,7 @@ import (
 func main() {
 	//session, err := utils.Init("localhost:27017")
 	utils.InitConfig()
-	session, err := utils.GetDataBaseSession("10.90.31.148:27017")
+	session, err := utils.GetDataBaseSession()
 	if err != nil {
 		log.Printf("Master DB Con Error : %v ", err)
 	}
