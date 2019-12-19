@@ -14,8 +14,8 @@ import (
 )
 
 func TestController(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	//utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -23,8 +23,8 @@ func TestController(t *testing.T) {
 }
 
 func TestAddPlaneHandler(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	//utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -56,8 +56,8 @@ func TestAddPlaneHandler(t *testing.T) {
 }
 
 func TestRemovePlaneByName(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	//utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -76,8 +76,8 @@ func TestRemovePlaneByName(t *testing.T) {
 }
 
 func TestGetPlanesHandler(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	//utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -89,8 +89,8 @@ func TestGetPlanesHandler(t *testing.T) {
 }
 
 func TestAddStudentHandelr(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -119,9 +119,9 @@ func TestAddStudentHandelr(t *testing.T) {
 }
 
 func TestGetStudentByNameHandler(t *testing.T) {
-	utils.InitConfig()
+	// utils.InitConfig()
 	//TestGetStudent
-	sess, _ := utils.GetDataBaseSession()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -140,8 +140,8 @@ func TestGetStudentByNameHandler(t *testing.T) {
 }
 
 func TestGetAllStudentsHandler(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -155,8 +155,8 @@ func TestGetAllStudentsHandler(t *testing.T) {
 }
 
 func TestDeleteStudentHandler(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()
@@ -178,8 +178,8 @@ func TestDeleteStudentHandler(t *testing.T) {
 }
 
 func TestUpdateStudentHandler(t *testing.T) {
-	utils.InitConfig()
-	sess, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	sess, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer sess.Close()
 	ser := httptest.NewServer(Handlers(sess, "testing"))
 	defer ser.Close()

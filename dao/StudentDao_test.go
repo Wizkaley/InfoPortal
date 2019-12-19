@@ -11,8 +11,8 @@ import (
 )
 
 func TestAddStudent(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	mockCtrl := gomock.NewController(t)
 	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
@@ -25,8 +25,8 @@ func TestAddStudent(t *testing.T) {
 	s := model.Student{}
 	_ = AddStudent(s, gDB, "testing")
 
-	// mockSColl.EXPECT().Insert(gomock.Any()).Return(nil).AnyTimes()
-	// _ = AddStudent(s, gDB, "testing")
+	mockSColl.EXPECT().Insert(gomock.Any()).Return(nil).AnyTimes()
+	_ = AddStudent(s, gDB, "testing")
 
 	mockCtrl.Finish()
 	gDB.Close()
@@ -34,8 +34,8 @@ func TestAddStudent(t *testing.T) {
 }
 
 func TestRemoveStudent(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	mockCtrl := gomock.NewController(t)
 	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
@@ -55,8 +55,8 @@ func TestRemoveStudent(t *testing.T) {
 }
 
 func TestGetByName(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	mockCtrl := gomock.NewController(t)
 	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
@@ -80,8 +80,8 @@ func TestGetByName(t *testing.T) {
 }
 
 func TestGetAll(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	mockCtrl := gomock.NewController(t)
 	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
@@ -104,8 +104,8 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestUpdateStudent(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	mockCtrl := gomock.NewController(t)
 	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)

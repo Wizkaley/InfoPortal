@@ -23,8 +23,8 @@ func getMockMongoDAL(database *mgo.Database) mongodal.MgoDBDAL {
 }
 
 func TestPutPlane(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	NewMongoDBDAL = getMockMongoDAL
 
@@ -54,8 +54,8 @@ func TestPutPlane(t *testing.T) {
 }
 
 func TestGetPlane(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	mockCtrl := gomock.NewController(t)
 	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
@@ -83,8 +83,8 @@ func TestGetPlane(t *testing.T) {
 }
 
 func TestUpdatePlane(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer gDB.Close()
 
 	//var p model.Plane
@@ -111,8 +111,8 @@ func TestUpdatePlane(t *testing.T) {
 }
 
 func TestRemovePlane(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer gDB.Close()
 
 	mockCtrl := gomock.NewController(t)
@@ -132,8 +132,8 @@ func TestRemovePlane(t *testing.T) {
 }
 
 func TestGetAllPlanes(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 	defer gDB.Close()
 
 	mockCtrl := gomock.NewController(t)
@@ -158,8 +158,8 @@ func TestGetAllPlanes(t *testing.T) {
 	}
 }
 func TestDeleteByID(t *testing.T) {
-	utils.InitConfig()
-	gDB, _ := utils.GetDataBaseSession()
+	// utils.InitConfig()
+	gDB, _ := utils.GetDataBaseSessionWithURI("localhost:27017")
 
 	mockCtrl := gomock.NewController(t)
 	mockMongo := mocks.NewMockMgoDBDAL(mockCtrl)
