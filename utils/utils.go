@@ -1,45 +1,38 @@
 package utils
 
-import (
-	"log"
+import "log"
 
-	mgo "gopkg.in/mgo.v2"
+import "github.com/spf13/viper"
+
+import "encoding/json"
+
+import "os"
+
+type config struct {
+	DatabaseHost string `mapstructure:"database_host"`
+	DatabasePort int    `mapstructure:"database_port"`
+}
+
+var (
+	// Config holds overall Database Config
+	Config config
 )
 
-// DataStore Struct to handle mongo connectivity
-type DataStore interface {
-	Init() (db *mgo.Session)
+// InitConfig setup Configuration
+func InitConfig() {
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+	viper.SetConfigName("config") //name of the config file without extension
+	viper.AutomaticEnv()
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("..")
+	_ = viper.ReadInConfig()
+	_ = viper.Unmarshal(&Config)
+
+	log.Printf("\n\n CONFIGURATION\n")
+	log.Printf("\n======================================================================\n")
+	displayConfig := Config
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "    ")
+	_ = enc.Encode(displayConfig)
+	log.Printf("\n======================================================================\n")
 }
-
-// Init ...
-func Init(path string) (sess *mgo.Session, err error) {
-	sess, err = mgo.Dial(path)
-	// if err != nil {
-	// 	log.Printf("Error while getting session : %v", err)
-	// 	return nil, err
-	// }
-	defer func() {
-		r := recover()
-		if r != nil {
-			log.Println("Error while getting session : no reachable servers")
-		}
-	}()
-	// ses = ensureInd(sess)
-	// if err != nil {
-	// 	log.Printf("Error while Applying Indicex : %v", err)
-	// }
-	//indexes, _ := sess.DB("trial").C("Student").Indexes()
-
-	// fmt.Println("")
-	// for _, val := range indexes {
-	// 	fmt.Println(val.Name)
-	// }
-	return
-}
-
-// func ensureInd(s *mgo.Session, db string, c string) (sesh *mgo.Session) {
-// 	//ses.DB("trial").C("Student").EnsureIndex(workIndices[0].Index)
-// 	s.DB(db).C(c).EnsureIndexKey("studentMarks")
-// 	sesh = s
-// 	return
-// }

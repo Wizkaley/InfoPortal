@@ -1,13 +1,11 @@
 FROM golang:1.13
 
-#run mkdir /go/src/github.com
-#run mkdir /go/src/github.com/RESTApp
-
-WORKDIR /go/src/RESTApp
+WORKDIR /go/src/InfoPortal
 COPY . .
 
 RUN go get -v ./...
 RUN go build .
+#RUN go test ./... -v
 EXPOSE 8081
 
-CMD ["./RESTApp"]
+CMD ["."]
