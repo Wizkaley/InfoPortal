@@ -9,7 +9,7 @@ import (
 var MgoDial = mgo.DialWithInfo
 
 // GetDataBaseSession returns a session from the DB
-func GetDataBaseSession(uri string) (session *mgo.Session, err error) {
+func GetDataBaseSession() (session *mgo.Session, err error) {
 	Host := []string{
 		Config.DatabaseHost + ":" + strconv.Itoa(Config.DatabasePort),
 	}
