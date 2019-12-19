@@ -6,19 +6,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/handlers"
 )
 
 func main() {
 	//session, err := utils.Init("localhost:27017")
-	session, err := utils.GetDataBaseSession("localhost:27017")
+	utils.InitConfig()
+	session, err := utils.GetDataBaseSession("10.90.31.148:27017")
 	if err != nil {
 		log.Printf("Master DB Con Error : %v ", err)
 	}
 	defer session.Close()
 
-	fmt.Printf("Server Listening on //localhost:%d\n", 8081)
+	fmt.Print("Server Listening on //" + utils.Config.DatabaseHost + ":" + strconv.Itoa(utils.Config.DatabasePort))
 	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "OPTIONS", "PUT"})
 	originOk := handlers.AllowedOrigins([]string{"http://localhost:3001"})
