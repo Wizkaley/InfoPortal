@@ -8,4 +8,4 @@ RUN go build .
 #RUN go test ./... -v
 EXPOSE 8081
 
-CMD ["."]
+CMD ["./RESTApp"]
