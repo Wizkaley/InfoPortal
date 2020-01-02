@@ -45,11 +45,11 @@ func TestRemoveStudent(t *testing.T) {
 	mockMongo.EXPECT().C("Students").Return(mockSColl).AnyTimes()
 	mockSColl.EXPECT().Remove(gomock.Any()).Return(err).AnyTimes()
 
-	RemoveByName("test", gDB, "testing")
+	_ = RemoveByName("test", gDB, "testing")
 
 	mockSColl.EXPECT().Remove(gomock.Any()).Return(nil).AnyTimes()
 
-	RemoveByName("test", gDB, "testing")
+	_ = RemoveByName("test", gDB, "testing")
 
 	mockCtrl.Finish()
 }

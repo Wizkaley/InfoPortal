@@ -123,7 +123,7 @@ func GetPlanesHandler(ds *mgo.Session, trial string) http.HandlerFunc {
 		res, _ := json.Marshal(allPlanes)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write(res)
+		_, _ = w.Write(res)
 	})
 }
 
@@ -131,7 +131,7 @@ func GetPlanesHandler(ds *mgo.Session, trial string) http.HandlerFunc {
 func sendErr(w http.ResponseWriter, stat int, res []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(stat)
-	w.Write(res)
+	_, _ = w.Write(res)
 }
 
 // AddPlane ...
@@ -193,11 +193,11 @@ func AddPlane(ds *mgo.Session, trial string) http.HandlerFunc {
 				//}
 			}
 
-			dao.PutPlane(pl, ds, trial)
+			_ = dao.PutPlane(pl, ds, trial)
 			w.Header().Set("Content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			res, _ := json.Marshal("Added Plane Successfully")
-			w.Write(res)
+			_, _ = w.Write(res)
 			defer r.Body.Close()
 		}
 	})
@@ -380,7 +380,7 @@ func UpdateStud(ds *mgo.Session, trial string) http.HandlerFunc {
 			}
 
 			//Decode values from body sent from client into a studentObject
-			err = json.NewDecoder(r.Body).Decode(&stuNew)
+			_ = json.NewDecoder(r.Body).Decode(&stuNew)
 
 			//update the values from the body to The object got from the Database
 			//stuToChange.StudentName = stuNew.StudentName
@@ -533,7 +533,7 @@ func AddStudent(ds *mgo.Session, trial string) http.HandlerFunc {
 				http.Error(w, "Validation Errors please check the supplied values for Test Status.\nBad Input Provided for - "+sErr, http.StatusUnprocessableEntity)
 				return
 			}
-			dao.AddStudent(stu, ds, trial)
+			_ = dao.AddStudent(stu, ds, trial)
 			response, _ := json.Marshal("Added Successfully")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
