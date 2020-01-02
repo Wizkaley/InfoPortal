@@ -3,6 +3,7 @@ package dao
 import (
 	"RESTApp/model"
 	"RESTApp/mongodal"
+	"RESTApp/utils"
 	"fmt"
 	"log"
 
@@ -66,6 +67,7 @@ func GetByName(i string, ds *mgo.Session, db string) (stu model.Student, err err
 	s := ds.Clone()
 	defer s.Close()
 	datab := s.DB(db)
+	utils.InitDB(datab)
 	dal := NewMongoDBDAL(datab)
 	err = dal.C("Student").Find(bson.M{"studentName": i}).One(&stu)
 	return stu, err
