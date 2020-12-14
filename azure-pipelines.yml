@@ -16,11 +16,11 @@ steps:
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
-    Getting deps ..
+    echo Getting deps ..
     go get -u github.com/jstemmer/go-junit-report
-    Running Test Cases and Generationg Report ...
+    echo Running Test Cases and Generationg Report ...
     go test -v ./... 2>&1 | go-junit-report > report.xml
-    Publishing Reports ....
+    echo Publishing Reports ....
     curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
       --header 'Content-Type: multipart/form-data' \
       --header 'Authorization: TOKEN rdCLcB5FRSnzwysV8eDpMj5iur4mCTDD-jpnTuo0SoaS35icoIn9eCCGWpyIH184' \
