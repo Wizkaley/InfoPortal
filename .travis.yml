@@ -27,3 +27,4 @@ script:
   - go vet ./... 
   - go build -race
   - go test ./... -race -v
+  - go test -v ./... 2>&1 | go-junit-report > report.xml   
