@@ -28,7 +28,7 @@ steps:
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
-    echo curl http://localhost:27017
+    curl http://localhost:27017
 
   displayName: 'Run a multi-line script'
 
