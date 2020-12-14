@@ -9,6 +9,7 @@ require (
 	github.com/golangci/golangci-lint v1.21.0 // indirect
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
+	github.com/jstemmer/go-junit-report v0.9.1 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/viper v1.6.1

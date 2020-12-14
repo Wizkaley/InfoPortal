@@ -17,3 +17,23 @@ steps:
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
+
+- task: GoDeps@0
+  inputs: 
+    command: 'get'
+    arguments: '-u github.com/jstemmer/go-junit-report'
+- task: GoTest@0
+  displayName: "Run go-junit-report"
+  inputs:
+    targetType: "inline"
+    script: |
+      go test -v ./... 2>&1 | go-junit-report > report.xml
+- task: PublishTest@0
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'report.xml'
+    script: |
+      curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
+      --header 'Content-Type: multipart/form-data' \
+      --header 'Authorization: TOKEN rdCLcB5FRSnzwysV8eDpMj5iur4mCTDD-jpnTuo0SoaS35icoIn9eCCGWpyIH184' \
+      --form 'uploadfile=@"report.xml"'
