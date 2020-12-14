@@ -16,11 +16,9 @@ resources:
     ports:
     - 27017-27019:27017-27019
 
-# services:
-#   mongo:
-#     image: mongo
-#     ports:
-#     - 6379/tcp
+# container:
+services:
+  mongo: mongodb
 
 
 steps:
@@ -30,6 +28,7 @@ steps:
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
+    echo curl http://localhost:27017
 
   displayName: 'Run a multi-line script'
 
