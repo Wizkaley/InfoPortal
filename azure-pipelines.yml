@@ -42,16 +42,16 @@ steps:
     #   go get -u github.com/jstemmer/go-junit-report
     workingDirectory:
 
-- task: Go@0
-  displayName: "Run go-junit-report"
-  inputs:
+# - task: Go@0
+#   displayName: "Run go-junit-report"
+#   inputs:
     # targetType: "inline"
     # command: test
     # customCommand: '-v ./... 2>&1'
     # '| go-junit-report > report.xml'
-    script: |
-      go test -v ./... 2>&1 | go-junit-report > report.xml
-    workingDirectory:
+- script: |
+    go test -v ./... 2>&1 | go-junit-report > report.xml
+  # workingDirectory:
 
 - task: PublishTestResults@2
   inputs:
