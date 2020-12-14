@@ -8,7 +8,7 @@ language: go
 env: GO111MODULE=on GOFLAGS='-mod vendor
 
 go:
-  - "1.13"
+  - "1.15"
 
 sudo: false
 
@@ -23,6 +23,7 @@ notifications:
   email: false
 
 script:
+  - go get -u github.com/jstemmer/go-junit-report 
   - go vet ./... 
   - go build -race
   - go test ./... -race -v
