@@ -36,7 +36,7 @@ steps:
     command: test
     # customCommand: '-v ./... 2>&1'
     # '| go-junit-report > report.xml'
-    arguments: '-v ./... 2>&1'
+    arguments: '-v ./... "2>&1"'
     # '| go-junit-report > report.xml'
     # script: |
     #   go test -v ./... 2>&1 | go-junit-report > report.xml
