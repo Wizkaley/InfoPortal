@@ -34,9 +34,10 @@ steps:
   inputs:
     # targetType: "inline"
     command: test
-    customCommand: '-v ./... 2>&1'
+    # customCommand: '-v ./... 2>&1'
     # '| go-junit-report > report.xml'
-    # arguments: '-v ./... 2>&1 | go-junit-report > report.xml'
+    arguments: '-v ./... 2>&1'
+    # '| go-junit-report > report.xml'
     # script: |
     #   go test -v ./... 2>&1 | go-junit-report > report.xml
     workingDirectory:
