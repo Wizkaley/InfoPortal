@@ -16,42 +16,44 @@ steps:
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
-    echo Getting deps ..
-    go get -u github.com/jstemmer/go-junit-report
-    echo Running Test Cases and Generationg Report ...
-    go test -v ./... 2>&1 | go-junit-report > report.xml
-    echo Publishing Reports ....
-    curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
-      --header 'Content-Type: multipart/form-data' \
-      --header 'Authorization: TOKEN rdCLcB5FRSnzwysV8eDpMj5iur4mCTDD-jpnTuo0SoaS35icoIn9eCCGWpyIH184' \
-      --form 'uploadfile=@"report.xml"'
+# echo Getting deps ..
+# go get -u github.com/jstemmer/go-junit-report
+# echo Running Test Cases and Generationg Report ...
+# go test -v ./... 2>&1 | go-junit-report > report.xml
+# echo Publishing Reports ....
+# curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
+#   --header 'Content-Type: multipart/form-data' \
+#   --header 'Authorization: TOKEN rdCLcB5FRSnzwysV8eDpMj5iur4mCTDD-jpnTuo0SoaS35icoIn9eCCGWpyIH184' \
+#   --form 'uploadfile=@"report.xml"'
 
   displayName: 'Run a multi-line script'
 
-# - task: Go@0
-#   displayName: "Getting Golang JUnit JSON"
-#   inputs: 
-#     targetType: "inline"
-#     # command: 'get'
-#     # arguments: '-u github.com/jstemmer/go-junit-report'
-#     script: |
-#       go get -u github.com/jstemmer/go-junit-report
+- task: Go@0
+  displayName: "Getting Golang JUnit JSON"
+  inputs: 
+    # targetType: "inline"
+    command: 'get'
+    arguments: '-u github.com/jstemmer/go-junit-report'
+    # script: |
+    #   go get -u github.com/jstemmer/go-junit-report
+    workingDirectory:
 
-# - task: Go@0
-#   displayName: "Run go-junit-report"
-#   inputs:
-#     targetType: "inline"
-#     # command: "test"
-#     # arguments: "-v ./... 2>&1 | go-junit-report > report.xml"
-#     script: |
-#       go test -v ./... 2>&1 | go-junit-report > report.xml
+- task: Go@0
+  displayName: "Run go-junit-report"
+  inputs:
+    # targetType: "inline"
+    command: "test"
+    arguments: "-v ./... 2>&1 | go-junit-report > report.xml"
+    # script: |
+    #   go test -v ./... 2>&1 | go-junit-report > report.xml
+    workingDirectory:
 
-# - task: PublishTestResults@2
-#   inputs:
-#     testResultsFormat: 'JUnit'
-#     testResultsFiles: "*.xml"
-#     script: |
-#       curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
-#       --header 'Content-Type: multipart/form-data' \
-#       --header 'Authorization: TOKEN rdCLcB5FRSnzwysV8eDpMj5iur4mCTDD-jpnTuo0SoaS35icoIn9eCCGWpyIH184' \
-#       --form 'uploadfile=@"report.xml"'
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: "*.xml"
+    script: |
+      curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
+      --header 'Content-Type: multipart/form-data' \
+      --header 'Authorization: TOKEN rdCLcB5FRSnzwysV8eDpMj5iur4mCTDD-jpnTuo0SoaS35icoIn9eCCGWpyIH184' \
+      --form 'uploadfile=@"report.xml"'
