@@ -50,6 +50,7 @@ steps:
     # customCommand: '-v ./... 2>&1'
     # '| go-junit-report > report.xml'
 - script: |
+    where go-junit-report
     go test -v ./... 2>&1 | /usr/bin/go-junit-report > report.xml
   # workingDirectory:
 
