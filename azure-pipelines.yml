@@ -9,6 +9,20 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+resources:
+  containers:
+  - container: mongodb
+    image: mongo:4.2.0
+    ports:
+    - 27017-27019:27017-27019
+
+# services:
+#   mongo:
+#     image: mongo
+#     ports:
+#     - 6379/tcp
+
+
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
