@@ -51,6 +51,11 @@ steps:
   displayName: 'Use Go 1.10'
 
 - task: Go@0
+  displayName: 'go get'
+  inputs:
+    arguments: '-d ./...'
+
+- task: Go@0
   displayName: 'Getting Golang JUnit JSON'
   inputs:
     arguments: '-u github.com/jstemmer/go-junit-report'
