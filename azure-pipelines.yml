@@ -42,8 +42,8 @@ steps:
   displayName: "Run go-junit-report"
   inputs:
     # targetType: "inline"
-    command: "test"
-    arguments: "-v ./... 2>&1 | go-junit-report > report.xml"
+    command: 'test'
+    arguments: '-v ./... 2>&1 | go-junit-report > report.xml'
     # script: |
     #   go test -v ./... 2>&1 | go-junit-report > report.xml
     workingDirectory:
@@ -51,7 +51,7 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: "*.xml"
+    testResultsFiles: '*.xml'
     script: |
       curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
       --header 'Content-Type: multipart/form-data' \
