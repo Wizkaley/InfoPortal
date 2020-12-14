@@ -28,7 +28,7 @@ steps:
     targetType: "inline"
     script: |
       go test -v ./... 2>&1 | go-junit-report > report.xml
-- task: PublishTestResult@2
+- task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: 'report.xml'
