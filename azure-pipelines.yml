@@ -52,7 +52,7 @@ steps:
 
 - script: |
     go version
-    go get -u github.com/jstemmer/go-junit-report
+    go get github.com/jstemmer/go-junit-report
     go test -v ./... 2>&1 | go-junit-report > report.xml
 # - task: Go@0
 #   displayName: "Run go-junit-report"
