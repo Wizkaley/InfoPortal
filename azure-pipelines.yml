@@ -22,9 +22,8 @@ services:
 
 variables:
   GOBIN:  '$(GOPATH)/bin' # Go binaries path
-  # GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
-  modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+  # modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
   # PATH: '$GOPATH/bin'
 
 steps:
@@ -40,33 +39,32 @@ steps:
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
     curl http://localhost:27017
-    go get -u github.com/jstemmer/go-junit-report
-    go test -v ./... 2>&1 | go-junit-report > report.xml
+  # go get -u github.com/jstemmer/go-junit-report
+  # go test -v ./... 2>&1 | go-junit-report > report.xml
   displayName: 'Run a multi-line script'
 
-# - task: Go@0
-#   displayName: "Getting Golang JUnit JSON"
-#   inputs: 
-#     # targetType: "inline"
-#     command: 'get'
-#     arguments: '-u github.com/jstemmer/go-junit-report'
+- task: Go@0
+  displayName: "Getting Golang JUnit JSON"
+  inputs: 
+    # targetType: "inline"
+    command: 'get'
+    arguments: '-u github.com/jstemmer/go-junit-report'
     # script: |
     #   go get -u github.com/jstemmer/go-junit-report
-    # workingDirectory:
+    workingDirectory:
 
-# - task: Go@0
-#   displayName: "Run go-junit-report"
-#   inputs:
-    # targetType: "inline"
-    # command: test
-    # customCommand: '-v ./... 2>&1'
-    # '| go-junit-report > report.xml'
+- task: Go@0
+  displayName: "Run go-junit-report"
+  inputs:
+    targetType: "inline"
+    command: test
+    arguments: '-v ./... 2>&1 | go-junit-report > report.xml'
 # - script: |
-    # echo Eshan
-  # which go-junit-report
-    # go get -u github.com/jstemmer/go-junit-report
-    # go test -v ./... 2>&1 | /usr/bin/go-junit-report > report.xml
-  # workingDirectory:
+#     echo Eshan
+#   which go-junit-report
+#     go get -u github.com/jstemmer/go-junit-report
+#     go test -v ./... 2>&1 | /usr/bin/go-junit-report > report.xml
+  workingDirectory:
 
 - task: PublishTestResults@2
   inputs:
