@@ -54,6 +54,10 @@ steps:
     go version
     go get github.com/jstemmer/go-junit-report
     go test -v ./... 2>&1 | go-junit-report > report.xml
+    echo The file generated is ...
+    pwd report.xml
+    echo The file contents are ...
+    cat report.xml
 # - task: Go@0
 #   displayName: "Run go-junit-report"
 #   inputs:
