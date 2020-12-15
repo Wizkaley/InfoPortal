@@ -60,7 +60,7 @@ steps:
     pwd report.xml
     echo The file contents are ...
     cat report.xml
-    curl --location --request POST 'https://dev-dash-commander-demo.multicloud-ibm.com/dash/api/test/v1/services/'$(projectName)'/tests/unit/run/5d8b192ac11e8a01f1493f11?fileType=xunit&testEngine=XUNIT' \
+    curl --location --request POST 'https://dev-dash-commander-demo.multicloud-ibm.com/dash/api/test/v1/services/'$(projectName)'/tests/unit/run/5d8b192ac11e8a01f1493f12?fileType=xunit&testEngine=XUNIT' \
       --header 'Content-Type: multipart/form-data' \
       --header 'Authorization: TOKEN '$(DevOpsToken)'' \
       --form 'uploadfile=@"report.xml"' -k
