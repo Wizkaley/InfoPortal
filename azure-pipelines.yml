@@ -58,10 +58,10 @@ steps:
     pwd report.xml
     echo The file contents are ...
     cat report.xml
-    curl --location --request POST 'https://local-core.gravitant.net/dash/api/test/v1/services/dash_17/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
+    curl --location --request POST 'https://dev-dash-commander-demo.multicloud-ibm.com/dash/api/test/v1/services/InfoPortal/tests/unit/run/5d8b192ac11e8a01f1493f10?fileType=xunit&testEngine=XUNIT' \
       --header 'Content-Type: multipart/form-data' \
-      --header 'Authorization: TOKEN rdCLcB5FRSnzwysV8eDpMj5iur4mCTDD-jpnTuo0SoaS35icoIn9eCCGWpyIH184' \
-      --form 'uploadfile=@"report.xml"'
+      --header 'Authorization: TOKEN SIa9vnROjthsY_z93TDMPk3xt6CttgCqLAP_eabPsv9jXu1LJZ_FD8xhKe98yRMC' \
+      --form 'uploadfile=@"report.xml"' -k
   workingDirectory: '$(modulePath)'
   displayName: "Run JUnit Reporting"
 
