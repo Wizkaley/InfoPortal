@@ -45,7 +45,7 @@ steps:
 
 - task: GoTool@0
   inputs:
-    version: '1.15.0'
+    version: '1.14.3'
 - task: Go@0
   displayName: "Getting Golang JUnit JSON"
   inputs: 
