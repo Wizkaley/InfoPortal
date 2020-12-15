@@ -32,8 +32,8 @@ steps:
   displayName: 'Run a one-line script'
 
 - script: 
-  echo '##vso[task.prependpath]$(GOBIN)'
-  echo '##vso[task.prependpath]$(GOROOT)/bin'
+    echo '##vso[task.prependpath]$(GOBIN)'
+    echo '##vso[task.prependpath]$(GOROOT)/bin'
 
 
 - script: |
