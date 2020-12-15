@@ -3,8 +3,8 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- main
+# trigger:
+# - main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -22,41 +22,36 @@ services:
 
 variables:
   GOBIN:  '$(GOPATH)/bin' # Go binaries path
+  GOROOT: '/usr/local/go1.11'
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
-  # modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+  modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
   # PATH: '$GOPATH/bin'
 
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
-- script: 
-    echo '##vso[task.prependpath]$(GOBIN)'
-    echo '##vso[task.prependpath]$(GOROOT)/bin'
+# - script: |
+#     echo '##vso[task.prependpath]$(GOBIN)'
+#     echo '##vso[task.prependpath]$(GOROOT)/bin'
 
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
     curl http://localhost:27017
-  # go get -u github.com/jstemmer/go-junit-report
-  # go test -v ./... 2>&1 | go-junit-report > report.xml
-  displayName: 'Run a multi-line script'
 
-- task: GoTool@0
-  inputs:
-    version: '1.14.3'
-- task: Go@0
-  displayName: "Getting Golang JUnit JSON"
-  inputs: 
-    # targetType: "inline"
-    command: 'get'
-    arguments: '-u github.com/jstemmer/go-junit-report'
-    # script: |
-    #   go get -u github.com/jstemmer/go-junit-report
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    mkdir -p '$(GOBIN)'
+    mkdir -p '$(GOPATH)/pkg'
+    mkdir -p '$(modulePath)'
+    shopt -s extglob
+    mv !(gopath) '$(modulePath)'
+    echo '##vso[task.prependpath]$(GOBIN)'
+    echo '##vso[task.prependpath]$(GOROOT)/bin'
+  displayName: "Setup Go Workspace"
 
 - script: |
+    go version
     go get -u github.com/jstemmer/go-junit-report
     go test -v ./... 2>&1 | go-junit-report > report.xml
 # - task: Go@0
@@ -70,7 +65,8 @@ steps:
 #   which go-junit-report
 #     go get -u github.com/jstemmer/go-junit-report
 #     go test -v ./... 2>&1 | /usr/bin/go-junit-report > report.xml
-  workingDirectory: '$(System.DefaultWorkingDirectory)'
+  workingDirectory: '$(modulePath)'
+  displayName: "Run JUnit Reporting"
 
 - task: PublishTestResults@2
   inputs:
