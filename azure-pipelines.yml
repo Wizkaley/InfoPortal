@@ -25,11 +25,16 @@ variables:
   # GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
-  PATH: '$GOPATH/bin'
+  # PATH: '$GOPATH/bin'
 
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
+
+- script: 
+  echo '##vso[task.prependpath]$(GOBIN)'
+  echo '##vso[task.prependpath]$(GOROOT)/bin'
+
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
