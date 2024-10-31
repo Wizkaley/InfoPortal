@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Go Developer Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+      :root {
+        --primary: #00add8;
+        --secondary: #2e2e2e;
+        --text: #333;
+        --background: #f5f5f5;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+      }
+
+      nav ul {
+        display: flex;
+        justify-content: center;
+        list-style: none;
+        gap: 2rem;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 500;
+        position: relative;
+        padding: 0.5rem 1rem;
+        transition: color 0.3s;
+      }
+
+      nav a:hover {
+        color: var(--primary);
+      }
+
+      nav a::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--primary);
+        transition: width 0.3s;
+      }
+
+      nav a:hover::after {
+        width: 100%;
+      }
+
+      section {
+        min-height: 100vh;
+        padding: 6rem 2rem 2rem;
+        display: none;
+      }
+
+      section.active {
+        display: block;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 2rem;
+      }
+
+      .hero h1 {
+        font-size: 3rem;
+        color: var(--secondary);
+      }
+
+      .hero p {
+        font-size: 1.2rem;
+        max-width: 600px;
+        line-height: 1.6;
+      }
+
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
+      }
+
+      .project-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+      }
+
+      .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .contact-form {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--secondary);
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        transition: border-color 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        border-color: var(--primary);
+        outline: none;
+      }
+
+      button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      button:hover {
+        background: #0091c0;
+      }
+
+      #particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .skill-chart {
+        margin-top: 2rem;
+      }
+
+      .about-me {
+        max-width: 1000px;
+        margin: 4rem auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        padding: 2rem;
+        background: var(--card-bg);
+        border-radius: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .about-me:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .about-content {
+        padding: 2rem;
+      }
+
+      .about-header {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: inline-block;
+      }
+
+      .about-header::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 3px;
+        background: var(--primary);
+        transition: width 0.3s ease;
+      }
+
+      .about-me:hover .about-header::after {
+        width: 100%;
+      }
+
+      .personal-info {
+        margin-top: 2rem;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.8rem;
+        background: rgba(0, 173, 216, 0.1);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .info-item:hover {
+        transform: translateX(10px);
+        background: rgba(0, 173, 216, 0.2);
+      }
+
+      .info-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 1rem;
+        color: var(--primary);
+      }
+
+      .info-label {
+        font-weight: 500;
+        margin-right: 1rem;
+        color: var(--primary);
+      }
+
+      .info-value {
+        color: var(--text);
+      }
+
+      .about-image {
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+        min-height: 300px;
+      }
+
+      .about-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .about-image:hover img {
+        transform: scale(1.05);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .social-link {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .social-link:hover {
+        transform: translateY(-5px) rotate(10deg);
+        box-shadow: 0 5px 15px rgba(0, 173, 216, 0.3);
+      }
+
+      .skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.5rem;
+      }
+
+      .skill-pill {
+        padding: 0.5rem 1rem;
+        background: var(--primary);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .skill-pill:hover {
+        transform: scale(1.1) rotate(3deg);
+        box-shadow: 0 5px 15px rgba(0, 173, 216, 0.3);
+      }
+
+      @media (max-width: 768px) {
+        .about-me {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="particles"></div>
+    <nav>
+      <ul>
+        <li><a href="#home" class="nav-link">Home</a></li>
+        <li><a href="#projects" class="nav-link">Projects</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+        <li><a href="#about" class="nav-link">About Me</a></li>
+      </ul>
+    </nav>
+
+    <section id="home">
+      <div class="hero">
+        <h1>Go Developer</h1>
+        <p>
+          Professional Summary Results-driven Software Engineer with 6.9 years
+          of expertise in building robust, scalable applications. Specialized in
+          developing high-performance microservices and distributed systems
+          using Go. Strong focus on writing clean, maintainable code and
+          implementing best practices in software architecture. Currently
+          architecting and implementing microservices-based solutions, with a
+          proven track record of delivering complex projects that handle
+          significant scale. Experienced in container orchestration, database
+          optimization, and creating efficient CI/CD pipelines.
+        </p>
+        <div class="skill-chart"></div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="projects-grid">
+        <div class="project-card">
+          <h3>Microservices Framework</h3>
+          <p>A highly scalable microservices framework built with Go</p>
+        </div>
+        <div class="project-card">
+          <h3>Real-time Data Pipeline</h3>
+          <p>Processing millions of events per second using Go</p>
+        </div>
+        <div class="project-card">
+          <h3>Kubernetes Operator</h3>
+          <p>Custom Kubernetes operator for automated deployment</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <form class="contact-form">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" required />
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea rows="5" required></textarea>
+        </div>
+        <button type="submit">Send Message</button>
+      </form>
+    </section>
+
+    <section id="about" class="active">
+      <div class="about-me">
+        <div class="about-content">
+          <h2 class="about-header">About Me</h2>
+          <p>
+            I'm a passionate Software Engineer with a deep love for building
+            scalable, efficient systems. My journey in software development has
+            been driven by curiosity and a constant desire to learn and improve.
+          </p>
+
+          <div class="personal-info">
+            <div class="info-item">
+              <svg
+                class="info-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span class="info-label">Name:</span>
+              <span class="info-value">Eshan Kaley</span>
+            </div>
+
+            <div class="info-item">
+              <svg
+                class="info-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+              <span class="info-label">Email:</span>
+              <span class="info-value">kaleyeshan@gmail.com</span>
+            </div>
+
+            <div class="info-item">
+              <svg
+                class="info-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                />
+              </svg>
+              <span class="info-label">Experience:</span>
+              <span class="info-value">6.9 years</span>
+            </div>
+          </div>
+
+          <div class="skills-list">
+            <span class="skill-pill">Go</span>
+            <span class="skill-pill">Microservices</span>
+            <span class="skill-pill">Docker</span>
+            <span class="skill-pill">SQL</span>
+            <span class="skill-pill">System Design</span>
+          </div>
+
+          <div class="social-links">
+            <a href="https://github.com/Wizkaley" class="social-link">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+                />
+              </svg>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/eshan-kaley-ba567b109"
+              class="social-link"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
+                />
+                <rect x="2" y="9" width="4" height="12" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+            </a>
+            <a href="#" class="social-link">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5 0-.28-.03-.56-.08-.83A7.72 7.72 0 0 0 23 3z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="about-image">
+          <img src="static/me.jpg" alt="About Me Image" />
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Navigation
+      document.querySelectorAll(".nav-link").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute("href").substring(1);
+          document.querySelectorAll("section").forEach((section) => {
+            section.classList.remove("active");
+          });
+          document.getElementById(targetId).classList.add("active");
+        });
+      });
+
+      // D3.js Skill Chart
+      const skills = [
+        { name: "Go", level: 95 },
+        { name: "Microservices", level: 90 },
+        { name: "Docker", level: 85 },
+        { name: "Kubernetes", level: 80 },
+        { name: "gRPC", level: 85 },
+      ];
+
+      const width = 600;
+      const height = 300;
+      const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+
+      const svg = d3
+        .select(".skill-chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      const x = d3
+        .scaleBand()
+        .range([margin.left, width - margin.right])
+        .padding(0.1);
+
+      const y = d3.scaleLinear().range([height - margin.bottom, margin.top]);
+
+      x.domain(skills.map((d) => d.name));
+      y.domain([0, 100]);
+
+      svg
+        .append("g")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x));
+
+      svg
+        .append("g")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y));
+
+      svg
+        .selectAll("rect")
+        .data(skills)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.name))
+        .attr("y", height - margin.bottom)
+        .attr("width", x.bandwidth())
+        .attr("height", 0)
+        .attr("fill", "#00ADD8")
+        .transition()
+        .duration(1000)
+        .attr("y", (d) => y(d.level))
+        .attr("height", (d) => height - margin.bottom - y(d.level));
+
+      // Particle Animation
+      const particlesCount = 50;
+      const particles = [];
+
+      for (let i = 0; i < particlesCount; i++) {
+        particles.push({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          size: Math.random() * 3 + 1,
+          speedX: Math.random() * 2 - 1,
+          speedY: Math.random() * 2 - 1,
+        });
+      }
+
+      const particlesSvg = d3
+        .select("#particles")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%");
+
+      const particleElements = particlesSvg
+        .selectAll("circle")
+        .data(particles)
+        .enter()
+        .append("circle")
+        .attr("cx", (d) => d.x)
+        .attr("cy", (d) => d.y)
+        .attr("r", (d) => d.size)
+        .attr("fill", "#00ADD8")
+        .attr("opacity", 0.3);
+
+      function animateParticles() {
+        particles.forEach((particle) => {
+          particle.x += particle.speedX;
+          particle.y += particle.speedY;
+
+          if (particle.x < 0 || particle.x > window.innerWidth)
+            particle.speedX *= -1;
+          if (particle.y < 0 || particle.y > window.innerHeight)
+            particle.speedY *= -1;
+        });
+
+        particleElements.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+
+        requestAnimationFrame(animateParticles);
+      }
+
+      animateParticles();
+
+      document.querySelectorAll(".info-item").forEach((item) => {
+        item.addEventListener("mouseenter", () => {
+          item.style.transform = "translateX(10px)";
+        });
+
+        item.addEventListener("mouseleave", () => {
+          item.style.transform = "translateX(0)";
+        });
+      });
+
+      document.querySelectorAll(".skill-pill").forEach((pill) => {
+        pill.addEventListener("mouseenter", () => {
+          pill.style.transform = "scale(1.1) rotate(3deg)";
+        });
+
+        pill.addEventListener("mouseleave", () => {
+          pill.style.transform = "scale(1) rotate(0)";
+        });
+      });
+    </script>
+  </body>
+</html>
